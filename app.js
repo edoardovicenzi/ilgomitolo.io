@@ -19,14 +19,6 @@ const db = firebase.firestore();
 
 //dichiarazione componenti vue
 
-Vue.component('main-app',{
-	template:`<div>
-	<nav-bar></nav-bar>
-	<menu-sandwitch></menu-sandwitch>
-	</div>
-	`
-	
-})
 
 Vue.component('app-body', {
   template:`
@@ -89,7 +81,7 @@ Vue.component('card',{
 			</div>
 
 			<div class="card-price">
-				<h2 v-bind:class="{prezzoScontato : item.isDiscounted}">{{ item.prezzo }}€</h2>
+				<h2 v-bind:class="{'prezzo-scontato' : item.isDiscounted}">{{ item.prezzo }}€</h2>
 				<h2 v-if="item.isDiscounted" style="color:red">{{ item.prezzoScontato }}€</h2>
 			</div>
 		</div>
@@ -158,9 +150,32 @@ Vue.component('nav-bar',{
 	
 	
 	
+	<div id="sidebar-menu-shadow" v-bind:class="[sidebarStatus ? 'fade-in' : 'fade-out']">
+	<div id="clicker" v-if="sidebarStatus" @click=></div>
+	</div>
 	
+	
+
+		
 	<div id="sidebar-menu" v-bind:class="[sidebarStatus ? 'menu-sandwitch-active' : 'menu-sandwitch-inactive']">
-  		<button @click="toggle()">Cliccami</button>
+		  <div class="sidebar-head primary">
+			  <div class="sidebar-account-image">
+				  <img src="" alt="">
+			  </div>
+		  </div>
+		  		<button @click="toggle()"> chiudi</button>
+						<div class="sidebar-body-wrapper">
+							<div>ciao</div>
+							<div>ciao</div>
+							<div></div>							
+							<span class="divider"></span>
+							<div></div>
+							<div></div>	
+						</div> 
+	</div>
+	
+	
+	
 </div>`,
 	data: function () {
 		return {
