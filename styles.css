@@ -1,0 +1,176 @@
+main {
+  width: 100%;
+	margin-top: 76px;
+}
+body, html {
+    margin: 0;
+    padding: 0;
+}
+a {
+  cursor: pointer;
+	text-decoration: none;
+	color: black;
+}
+h1 {
+	font-family: roboto;
+	font-size: 20px;
+	margin: 0px;
+	padding: 0px;
+}
+h2 {
+	font-family: roboto;
+	font-size: 15px;
+	margin: 0px;
+}
+h4 {
+font-family: Roboto;
+font-style: normal;
+font-weight: normal;
+font-size: 15px;
+margin: 0px;
+}
+li {
+}
+ul {
+	padding:0px;
+	margin:0px;
+}
+.primary {
+	background-color: #F7A48B;
+}
+.sidebar-container{
+  width: 100%;
+  height: 100%;
+}
+.top-bar-container{
+}
+.top-nav-bar {
+	position: fixed;
+  top: 0;
+  box-shadow: 0px 1px 10px #999;
+	height: 56px;
+	z-index: 2;
+	width: 100%;
+}
+.top-nav-bar a {
+  color: black;
+  text-decoration: none;
+}
+.left-float {
+	 float:left;
+ }
+ .right-float{
+	 float:right;
+ }
+ .top-nav-bar li {
+	 display: inline;
+	 margin: 0 10px;
+	 line-height: 56px;
+ }
+#sidebar-menu {
+  position: fixed;
+  background-color: white;
+  left: -500px;
+  top: 0px;
+  width: 400px;
+  height: 1000px;
+  z-index: 100;
+  transition-duration: 1s;
+}
+
+.menu-sandwitch-inactive{
+  transform: translateX(-500px);
+}
+.menu-sandwitch-active{
+  transform: translateX(500px);
+}
+.menu-struttura-top{
+  width: 100%;
+  height: 112px;
+}
+.menu-struttura-body{
+
+}
+.card-container{
+float: left;
+padding: 12px 15px;
+width: 326px;
+height: 265px;
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+border-radius: 4px;
+margin: 20px 20px;
+}
+.card-top {
+
+}
+.card-title {
+	float: left;
+	display: inline;
+}
+.card-price {
+	float:right;
+	display: inline-block;
+}
+.prezzoScontato{
+  color: red;
+  text-decoration: line-through;
+}
+.card-image {
+width: 100%;
+height: 162px;
+border-radius: 12px;
+margin: 14px 0px;
+}
+.card-bottom {
+	width: 100%;
+}
+.card-bottom >*{
+	float: left;
+	display: block;
+	margin-right: 30px;
+	line-height: 24px;
+
+}
+.counter-container *{
+float: left;
+display: block;
+width: 24px;
+text-align: center;
+line-height: 24px;
+}
+.counter-container a{
+	border-style: solid;
+	border-width: thin;
+	border-radius: 4px;
+}
+.card-buy-button {
+width: 91px;
+height: 28px;
+background: #F7A48B;
+line-height: 28px;
+text-align: center;
+border-radius: 2px;
+float: right;
+margin: 0px;
+}
+.products-card-container {
+  padding: 20px;
+  width: 1200px;
+  margin: auto;
+}
+.snack-bar-container{
+  width: 237px;
+height: 58px;
+left: 0px;
+top: 0px;
+
+background: rgba(142, 72, 52, 0.75);
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+border-radius: 50px;
+}
+.fade-enter-active, .fade-leave-active {
+	transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+	opacity: 0;
+  }
