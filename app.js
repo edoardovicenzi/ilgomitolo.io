@@ -133,7 +133,7 @@ Vue.component('nav-bar',{
 		<div class="top-nav-bar primary">
 			<div class="left-float">
 				<ul>
-					<li><a href="#" @click="toggle()"><i class="material-icons">menu</i></a></li>
+					<li><a href="#" @click="toggle()"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
 					<li><router-link class="router-link" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
 					<li><router-link class="router-link" to="/Mercato">Go to Mercato</router-link></li>
 					<li><router-link to="/Carrello">Go to Carrello</router-link></li>
@@ -159,21 +159,24 @@ Vue.component('nav-bar',{
 		
 	<div id="sidebar-menu" v-bind:class="[sidebarStatus ? 'menu-sandwitch-active' : 'menu-sandwitch-inactive']">
 		  <div class="sidebar-head primary">
-			  <div class="sidebar-account-image">
-				  <img src="" alt="">
+			  
+				  <img class="sidebar-account-image" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="">			  <div>
+
 			  </div>
 		  </div>
-		  		<button @click="toggle()"> chiudi</button>
+		  		
 						<div class="sidebar-body-wrapper">
 							<ul>
-								<li></li>
-								<li></li>
-								<li></li>
-								<li></li>
-								<li></li>
-								<li></li>
+								<li><i class="material-icons drawer-li">home</i><h1>Home</h1></li>
+								<li><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li>
+								<li><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></li>
+								<div></div>
+								<li><i class="material-icons drawer-li">person</i><h1>Area personale</h1></li>
+								<li><i class="material-icons drawer-li">help</i><h1>Supporto</h1></li>
+								<li><button @click="toggle()"> chiudi</button></li>
 							</ul>
 						</div> 
+						
 	</div>
 	
 	

@@ -30,6 +30,7 @@ font-size: 15px;
 margin: 0px;
 }
 li {
+	
 }
 ul {
 	padding:0px;
@@ -46,7 +47,7 @@ ul {
 }
 .sidebar-head{
   width: 100%;
-  height: 112px;
+  height: 25%;
 }
 .top-nav-bar {
 	position: fixed;
@@ -77,18 +78,13 @@ ul {
 
 
 
-.sidebar-body-wrapper{
-  position: fixed;
-  width: 100%;
-  height:100%;
-}
 #sidebar-menu {
   position: fixed;
   background-color: white;
   left: -500px;
   top: 0px;
-  width: 400px;
-  height: 1000px;
+  width: 35%;
+  height: 100%;
   z-index: 100;
   transition-duration: 1s;
 }
@@ -151,11 +147,33 @@ ul {
 		0% {opacity:0,25;}
 		100% {opacity:0;}
 		}
-	
 
-
-
-
+		
+.sidebar-body-wrapper{
+	position: fixed;
+	left: 25%;
+	width: 50%;
+	height:100%;
+	margin-top: 15%;
+  }
+.drawer-li{
+	position: relative;
+	top: 5px;
+	margin-right: 40px;
+}
+.sidebar-body-wrapper ul li h1{
+	display: inline;
+}
+.sidebar-body-wrapper ul li{
+	list-style-type: none;
+	margin-bottom: 25%;
+}
+.sidebar-account-image {
+	width: 100px;
+	height: 100px;
+	border-radius: 70px;
+	margin: 40px;
+}
 
 
 
