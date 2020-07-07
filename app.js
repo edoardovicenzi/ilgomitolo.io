@@ -151,7 +151,7 @@ Vue.component('nav-bar',{
 	
 	
 	<div id="sidebar-menu-shadow" v-bind:class="[sidebarStatus ? 'fade-in' : 'fade-out']">
-	<div id="clicker" v-if="sidebarStatus" @click=></div>
+	<div id="clicker" v-if="sidebarStatus" @click="toggle()"></div>
 	</div>
 	
 	
@@ -165,12 +165,14 @@ Vue.component('nav-bar',{
 		  </div>
 		  		<button @click="toggle()"> chiudi</button>
 						<div class="sidebar-body-wrapper">
-							<div>ciao</div>
-							<div>ciao</div>
-							<div></div>							
-							<span class="divider"></span>
-							<div></div>
-							<div></div>	
+							<ul>
+								<li></li>
+								<li></li>
+								<li></li>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
 						</div> 
 	</div>
 	
@@ -188,7 +190,6 @@ methods : {
 		}
 	}
 });
-
 
 
 //placeholder per VueRouter
