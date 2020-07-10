@@ -45,9 +45,16 @@ ul {
 .primary {
 	background-color: #F7A48B;
 }
-.sidebar-head{
-  width: 100%;
-  height: 25%;
+
+
+.login-nav-bar{
+	border-radius: 20px;
+	background-color: white;
+	padding: 10px;
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+}
+.login-nav-bar:hover{
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 .top-nav-bar {
 	position: fixed;
@@ -77,13 +84,16 @@ ul {
 
 
 
-
+ .sidebar-head{
+	width: 100%;
+	height: 112px;
+  }
 #sidebar-menu {
   position: fixed;
   background-color: white;
   left: -500px;
   top: 0px;
-  width: 35%;
+  width: 20%;
   height: 100%;
   z-index: 100;
   transition-duration: 1s;
@@ -151,28 +161,32 @@ ul {
 		
 .sidebar-body-wrapper{
 	position: fixed;
-	left: 25%;
-	width: 50%;
+	width: 100%;
 	height:100%;
-	margin-top: 15%;
   }
 .drawer-li{
 	position: relative;
 	top: 5px;
+	left: 5%;
+	opacity: 70%;
 	margin-right: 40px;
+}
+.sidebar-body-wrapper ul li:hover{
+	background-color: rgb(223, 219, 219);
 }
 .sidebar-body-wrapper ul li h1{
 	display: inline;
+	opacity: 80%;
 }
 .sidebar-body-wrapper ul li{
 	list-style-type: none;
-	margin-bottom: 25%;
+	padding: 15px;
 }
 .sidebar-account-image {
-	width: 100px;
-	height: 100px;
+	width: 70px;
+	height: 70px;
 	border-radius: 70px;
-	margin: 40px;
+	margin: 21px 22px;
 }
 
 

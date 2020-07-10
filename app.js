@@ -54,22 +54,75 @@ Vue.component('app-body', {
 
 Vue.component('account-login',{
 	template:`<div>
-	<input type="text" v-model="email" placeholder="Email">
-	<input type="password" v-model="password" placeholder="Password">
-	<button @click="login">Login</button>
-	</div>`,
-	data: function (){
-		return {
-			 email: this.email,
-			 password: this.password
-		 }
-	},
-	methods: {
-		login: function (){
+        <form>
+        <input type="email" placeholder="email" v-model="email">
+        <input type="password" placeholder="password" v-model="password">
+        <input type="text" placeholder="username" v-model="username">
+        <button @click="testlogin">login</button>
+        <button @click="test">registrati</button>
+    </form>
+        
+        
+    </div>`,
+data: function(){
+    return{
+        email:this.email,
+        password: this.password,
+        username: ""
+    }
+},
+methods: {
+    test: function(){
+        firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+        .then(
+            db.collection('users').add({
+                email: this.email,
+                username:this.username,
+                preferiti: []
+            }).then(
+                document.cookie = "email=" + this.email + "; isLoggedIn=true;"
+                )
 
-			return
-		}
+            
+        )
+        .catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            alert("C'è stato un errore durante la registrazione dell'account!");
+            console.log(errorCode, errorMessage)
+            document.cookie = "email=;"
+            console.log(document.cookie)
+          });
+    },
+
+
+
+
+
+    testlogin: function(){
+        firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+        
+        .then(
+            document.cookie = "email=" + this.email +"; isLoggedIn=true;"
+        )        
+        .catch(function(error) {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode, errorMessage)
+            alert("L'account non esiste o c'è stato un errore!")
+            document.cookie = "email=;"
+            console.log(document.cookie)
+          });
+
+          
+    },
+    showCookies:function() {
+        alert(document.cookie)
+    }
 }
+});
+Vue.component('account-register',{
 });
 
 Vue.component('card',{
@@ -90,8 +143,8 @@ Vue.component('card',{
 
 		<div class="card-bottom">
 				<a><h4>Info</h4></a>
-				<a><i class="material-icons">favorite_border</i></a>
-
+				<a v-if="isPreferred == false" @click="addToPreferred"><i class="material-icons">favorite_border</i></a>
+				<a v-if="isPreferred == true" @click="removeToPreferred"><i class="material-icons">favorite</i></a>
 					<div class="counter-container">
 						<a class="counter-remove"@click="counterRemove"><i class="material-icons">remove</i></a>
 						<h4>{{counter}}</h4>
@@ -108,10 +161,11 @@ Vue.component('card',{
 	props: ['item'],
 	data: function (){
 		return {
-			 counter: 0
+			 counter: 0,
+			 isPreferred: false
 		 }
 	},
-
+	
 	methods: {
 
 		counterAdd: function (){
@@ -121,6 +175,30 @@ Vue.component('card',{
 		if (this.counter > 0){
 			return this.counter--;
 		}
+	},
+		addToPreferred: function(){
+
+			var ca = decodeURIComponent(document.cookie).split(';');
+			for(var i = 0; i <ca.length; i++) {
+			  var c = ca[i];
+			  while (c.charAt(0) == ' ') {
+				c = c.substring(1);
+			  }
+			  if (c.indexOf('isLoggedIn=') == 0) {
+				let h = c.substring('isLoggedIn='.length, c.length);
+				if (h === 'true'){
+					c.substring('email='.length, c.length)
+
+				this.isPreferred = !this.isPreferred;
+
+			}
+			  }
+			}
+			alert('Per aggiungere alla lista dei preferiti devi aver effettuato il login!');	
+			
+	},
+		removeToPreferred: function(){
+			this.isPreferred = !this.isPreferred;
 	}
 }
 });
@@ -135,15 +213,12 @@ Vue.component('nav-bar',{
 				<ul>
 					<li><a href="#" @click="toggle()"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
 					<li><router-link class="router-link" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
-					<li><router-link class="router-link" to="/Mercato">Go to Mercato</router-link></li>
-					<li><router-link to="/Carrello">Go to Carrello</router-link></li>
 					<li><router-link to="/Altro">Go to Altro</router-link></li>
 				</ul>
 			</div>
 			<div class="right-float">
-				<li><router-link to="/Account">Go to Account</router-link></li>
-				<li>Log In</li>
-				<li>Register</li>
+				<li><a>Register</a></li>
+				<li><a class="login-nav-bar">Log In</a></li>
 			</div>
 		</div>
 	</div>
@@ -167,13 +242,12 @@ Vue.component('nav-bar',{
 		  		
 						<div class="sidebar-body-wrapper">
 							<ul>
-								<li><i class="material-icons drawer-li">home</i><h1>Home</h1></li>
-								<li><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li>
-								<li><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></li>
+								<router-link to="/home"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
+								<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
+								<router-link to="/preferiti"><li @click="toggle"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
 								<div></div>
-								<li><i class="material-icons drawer-li">person</i><h1>Area personale</h1></li>
-								<li><i class="material-icons drawer-li">help</i><h1>Supporto</h1></li>
-								<li><button @click="toggle()"> chiudi</button></li>
+								<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
+								<router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
 							</ul>
 						</div> 
 						
@@ -197,23 +271,23 @@ methods : {
 
 //placeholder per VueRouter
 
-const Home = { template: '<app-body></app-body>' }
-const Mercato = { template: '<div>Mercato</div>' }
-const Carrello = { template: '<div>Carrello</div>' }
-const Account = { template: '<account-login></account-login>' }
-const Altro = { template: '<div>Altro</div>' }
+const home = { template: '<app-body></app-body>' }
+const ordini = { template: '<div>ordini</div>' }
+const preferiti = { template: '<div>preferiti</div>' }
+const areaPersonale = { template: '<account-login></account-login>' }
+const supporto = { template: '<div>Supporto</div>' }
 
 
 //dichiarazione routes per vue-router
 //struttura array di oggetti
 
 const routes = [
-  { path: '/Home', component: Home },
-  { path: '/Mercato', component: Mercato },
-  { path: '/Carrello', component: Carrello },
-  { path: '/Account', component: Account },
-  { path: '/Altro', component: Altro },
-  {path:'/', component: Home}
+  { path: '/home', component: home },
+  { path: '/ordini', component: ordini },
+  { path: '/preferiti', component: preferiti },
+  { path: '/areaPersonale', component: areaPersonale },
+  { path: '/supporto', component: supporto },
+  {path:'/', component: home}
 ]
 
 
