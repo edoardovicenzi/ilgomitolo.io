@@ -52,77 +52,93 @@ Vue.component('app-body', {
 });
 
 
-Vue.component('account-login',{
+Vue.component('account-managment',{
 	template:`<div>
         <form>
-        <input type="email" placeholder="email" v-model="email">
-        <input type="password" placeholder="password" v-model="password">
-        <input type="text" placeholder="username" v-model="username">
-        <button @click="testlogin">login</button>
-        <button @click="test">registrati</button>
+        <input type="email" placeholder="email" required v-model="email">
+        <input type="password" placeholder="password" required v-model="password">
+        <input type="text" placeholder="username" required v-model="username">
+        <button @click="loginAccount">login</button>
+        <button type="submit" @click="registerAccount">registrati</button>
+        <button @click="signOut">signout</button>
     </form>
         
         
     </div>`,
+
 data: function(){
     return{
-        email:this.email,
-        password: this.password,
-        username: ""
+        email: "",
+        password: "",
+		username: "",
+		usernameID: []
     }
 },
 methods: {
-    test: function(){
-        firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-        .then(
-            db.collection('users').add({
-                email: this.email,
-                username:this.username,
-                preferiti: []
-            }).then(
-                document.cookie = "email=" + this.email + "; isLoggedIn=true;"
-                )
-
-            
-        )
-        .catch(function(error) {
+    registerAccount: function(){
+        
+        if (this.email != "" && this.password != "" && this.username != ""){
+            firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+            .then( e => {
+                db.collection('users').add({
+                    email: this.email,
+                    preferiti: [],
+                    username: this.username
+                });
+            }                               
+            )
+            .catch(function(error) {
             // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
-            alert("C'è stato un errore durante la registrazione dell'account!");
+            // ...
             console.log(errorCode, errorMessage)
-            document.cookie = "email=;"
-            console.log(document.cookie)
           });
+        }
+        else{
+            console.log('i campi non possono essere vuoti')
+        }
+
+            
     },
 
-
-
-
-
-    testlogin: function(){
-        firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+    loginAccount: function(){
+        if (this.email != "" && this.password != ""){
+			firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+			.then(function(e){
+				let ids = []
+				e.forEach(function(doc){               
+					ids.push(doc.id)
+				})
+				self.results = usernameID
+			})
+			.catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log('email o password errate')
+                // ...
+              });
+              firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                  console.log('ok')
+                } else {
+                  console.log('devi essere loggato')
+                }
+              });
+             
+        }
         
-        .then(
-            document.cookie = "email=" + this.email +"; isLoggedIn=true;"
-        )        
-        .catch(function(error) {
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            console.log(errorCode, errorMessage)
-            alert("L'account non esiste o c'è stato un errore!")
-            document.cookie = "email=;"
-            console.log(document.cookie)
-          });
 
-          
     },
-    showCookies:function() {
-        alert(document.cookie)
+    signOut: function(){
+        firebase.auth().signOut().then(function() {
+            // Sign-out successful.
+          }).catch(function(error) {
+            // An error happened.
+          });
     }
-}
-});
-Vue.component('account-register',{
+        }
 });
 
 Vue.component('card',{
@@ -305,7 +321,8 @@ const router = new VueRouter({
 //inizializzazione istanza Vue
 
 const vue = new Vue({
-	el: '#app',		//id elemento connesso al foglio html
+	el: '#app',
+			//id elemento connesso al foglio html
   router				//importazione istanza VueRouter
 });
 
