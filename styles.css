@@ -267,3 +267,47 @@ background: rgba(142, 72, 52, 0.75);
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 border-radius: 50px;
 }
+
+.login-container {
+	grid-column-start: 2;
+	grid-row-start: 2;
+	background-color: white;
+	border-radius: 5px;
+	padding: 10px;
+}
+.auth-text-container{
+	margin: 30px;
+	padding: 10px;
+	box-sizing: border-box;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 3px;
+	border-color: grey;
+}
+.register-text{
+	margin: 10px;
+}
+.input-field {
+	width: 100%;
+	height: 36px;
+	border-style: hidden;
+	font-size: 20px;
+}
+.auth-text-container:hover {
+	border-color: black;
+}
+.login-footer{
+	text-align: center;
+	margin: 30px;
+}
+.button{
+	margin: auto;
+	width: 50%;
+	height: 36px;
+	background-color: #F7A48B;
+	line-height: 36px;
+	border-radius: 5px;
+}
+.button:hover{
+	background-color: #ff8b68;
+}
