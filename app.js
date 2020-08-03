@@ -53,12 +53,6 @@ Vue.component('app-body', {
 	}
 });
 
-
-
-
-
-
-
 Vue.component('nav-bar',{
 	template: `
 <div>
@@ -68,13 +62,13 @@ Vue.component('nav-bar',{
 			<div class="left-float">
 				<ul>
 					<li><a href="#" @click="toggle()"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
-					<li><router-link class="router-link" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
-					<li><router-link to="/Altro">Go to Altro</router-link></li>
+					<li><router-link class="hidden" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
+					<li></li>
 				</ul>
 			</div>
 			<div class="right-float">
-				<li><a>Register</a></li>
-				<li><a class="login-nav-bar" @click="toggle()">Log In</a></li>
+				<li><a class="hidden">Registrati!</a></li>
+				<li><a class="login-nav-bar hidden" @click="toggle()">Log In</a></li>
 			</div>
 		</div>
 	</div>
@@ -134,6 +128,7 @@ methods : {
 	}
 }
 });
+
 Vue.component('account-managment',{
 	template:`<div>
          <div>
