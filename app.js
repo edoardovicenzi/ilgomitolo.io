@@ -21,11 +21,95 @@ const user = firebase.auth().currentUser;
 
 //dichiarazione componenti vue
 
+Vue.component('app-body',{
+	template:`<div class="app-body">
+		<nav-bar></nav-bar>
+		<router-view></router-view>
+	</div>`,
+	data: function(){
+		return {
+			input:""
+		}
+	}
+})
 
-Vue.component('app-body', {
+Vue.component('nav-bar',{
+	template: `
+<div>
+
+	<div class="top-bar-container">
+		<div class="top-nav-bar primary">
+			<div class="left-float">
+				<ul>
+					<li><a href="#" @click="toggle()"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
+					<li><router-link class="hidden" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
+					<li><input :onkeyup="sendinput" v-model="input"></li>
+				</ul>
+			</div>
+			<div class="right-float">
+				<li><a class="hidden">Registrati!</a></li>
+				<li><a class="login-nav-bar hidden" @click="toggle()">Log In</a></li>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	<div id="sidebar-menu-shadow" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']">
+	<div id="clicker" v-if="behindStatus" @click="toggle()"></div>
+	</div>
+	
+	
+
+		
+	<div id="sidebar-menu" v-bind:class="[sidebarStatus ? 'menu-sandwitch-active' : 'menu-sandwitch-inactive']">
+		  <div class="sidebar-head primary">
+			  
+				  <img class="sidebar-account-image" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="">			 
+
+		  </div>
+		  		
+						<div class="sidebar-body-wrapper">
+							<ul>
+								<router-link to="/home"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
+								<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
+								<router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
+								<div></div>
+								<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
+								<router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
+							</ul>
+						</div> 
+						
+	</div>
+</div>`,
+	data: function () {
+		return {
+			sidebarStatus: false,
+			cookie: "",
+			behindStatus: false,
+			input:""
+		}
+	},
+methods : {
+	toggle: function (){
+			this.sidebarStatus = !this.sidebarStatus
+			this.behindStatus = !this.behindStatus
+		},
+	preferiti: function(){
+		this.sidebarStatus = !this.sidebarStatus
+		this.behindStatus = !this.behindStatus
+		if (!user){															// se esiste un user loggato
+			console.log("Non hai effettuato il login!")
+			this.$router.go('home')
+		}
+	}
+}
+
+});
+Vue.component('main-app', {
   template:`
 	<div class="products-card-container">
-	<card v-for="product in products" :item="product"></card>
+	<card v-for="product in getinput" :item="product"></card>
   </div>`,
 	data: function (){
 		return {
@@ -53,81 +137,7 @@ Vue.component('app-body', {
 	}
 });
 
-Vue.component('nav-bar',{
-	template: `
-<div>
 
-	<div class="top-bar-container">
-		<div class="top-nav-bar primary">
-			<div class="left-float">
-				<ul>
-					<li><a href="#" @click="toggle()"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
-					<li><router-link class="hidden" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
-					<li></li>
-				</ul>
-			</div>
-			<div class="right-float">
-				<li><a class="hidden">Registrati!</a></li>
-				<li><a class="login-nav-bar hidden" @click="toggle()">Log In</a></li>
-			</div>
-		</div>
-	</div>
-	
-	
-	
-	<div id="sidebar-menu-shadow" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']">
-	<div id="clicker" v-if="behindStatus" @click="toggle()"></div>
-	</div>
-	
-	
-
-		
-	<div id="sidebar-menu" v-bind:class="[sidebarStatus ? 'menu-sandwitch-active' : 'menu-sandwitch-inactive']">
-		  <div class="sidebar-head primary">
-			  
-				  <img class="sidebar-account-image" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="">			  <div>
-
-			  </div>
-		  </div>
-		  		
-						<div class="sidebar-body-wrapper">
-							<ul>
-								<router-link to="/home"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
-								<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
-								<router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
-								<div></div>
-								<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
-								<router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
-							</ul>
-						</div> 
-						
-	</div>
-	
-	
-	
-</div>`,
-	data: function () {
-		return {
-			sidebarStatus: false,
-			cookie: "",
-			behindStatus: false
-		}
-	},
-methods : {
-	toggle: function (){
-			this.sidebarStatus = !this.sidebarStatus
-			this.behindStatus = !this.behindStatus
-		},
-	preferiti: function(){
-		this.sidebarStatus = !this.sidebarStatus
-		this.behindStatus = !this.behindStatus
-		if (!user){															// se esiste un user loggato
-			console.log("Non hai effettuato il login!")
-			this.$router.go('home')
-		}
-	}
-}
-});
 
 Vue.component('account-managment',{
 	template:`<div>
@@ -399,7 +409,7 @@ Vue.component('login-card',{
 })
 //placeholder per VueRouter
 
-const home = { template: '<app-body></app-body>' }
+const home = { template: '<main-app></main-app>' }
 const ordini = { template: '<div>ordini</div>' }
 const preferiti = { template: '<preferiti></preferiti>' }
 const areaPersonale = { template: '<account-managment></account-managment>' }
