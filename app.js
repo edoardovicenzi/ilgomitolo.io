@@ -25,7 +25,6 @@ const user = firebase.auth().currentUser;
 Vue.component('app-body',{
 	template:`<div class="app-body">
 		<nav-bar></nav-bar>
-		<filter-snack></filter-snack>
 		<router-view></router-view>
 	</div>`,
 	data: function(){
@@ -114,9 +113,13 @@ methods : {
 });
 
 Vue.component('main-app', {
-  template:`<div class="products-card-container">
-	<card v-for="product in products" :item="product"></card>
-  </div>`,
+  template:`
+  	<div>
+	  	<filter-snack></filter-snack>
+		<div class="products-card-container">
+			<card v-for="product in products" :item="product"></card>
+		</div>
+	</div>`,
 	data: function (){
 		return {
 			products : {},												//	array di oggetti
