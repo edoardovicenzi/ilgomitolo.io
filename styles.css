@@ -210,7 +210,7 @@ ul {
 	.search-bar-main-container {
 		position: fixed;
 		top: 5px;
-		z-index: 10000;
+		z-index: 10;
 		height: 32px;
 		line-height: 32px;
 		width: 50%;
@@ -269,7 +269,7 @@ ul {
 	.products-card-container { grid-template-columns: repeat(3, 1fr); }.search-bar-main-container {
 		position: fixed;
 		top: 5px;
-		z-index: 10000;
+		z-index: 10;
 		height: 32px;
 		line-height: 32px;
 		width: 65%;
