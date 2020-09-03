@@ -26,16 +26,8 @@ Vue.component('app-body',{
 	template:`<div class="app-body">
 		<nav-bar></nav-bar>
 		<router-view></router-view>
-	</div>`,
-	data: function(){
-		return {
-		}
-	},
-	methods:{
-		getSearchInput: function (value){
-			this.passedSearch = value
-		}
-	}
+	</div>`
+
 })
 
 Vue.component('nav-bar',{
@@ -105,45 +97,84 @@ methods : {
 		})
 		
 	},
-	passSearch: function(event){
-		this.$emit('pass', this.searchInput)
+	passSearch: function(){
+		console.log(this.search)
+		router.push({name :'home', params:{query: this.search}})
 	}
 }
-
 });
 
 Vue.component('main-app', {
   template:`
   	<div>
-	  	<filter-snack></filter-snack>
+		<div class="search-bar-main-container">
+			<div :class="bckgrnSwap ? 'search-bar-main-wrapper-active' : 'search-bar-main-wrapper-inactive'">
+				<span class="material-icons search-ico">
+					search
+				</span>
+				<span class="search-bar-inner-container">
+					<label v-if="labelControl" class="search-label"><h4>CERCA QUI...</h4></label>
+					<input type="text" v-model='search' v-on:keyup="control" class="search-input" v-on:focus="bckgrnSwapControl" v-on:blur="bckgrnSwapControl">
+				</span>
+			</div>
+			
+		</div>
+		
+		
+		<filter-snack></filter-snack>
 		<div class="products-card-container">
-			<card v-for="product in products" :item="product"></card>
+			<card v-for="product in filteredList" :item="product" v-if="!notLoaded"></card>
+			<fake-card v-for="fake in fakes" v-if="notLoaded"></fake-card>
 		</div>
 	</div>`,
 	data: function (){
 		return {
-			products : {},												//	array di oggetti
+			products : [],													//	array di oggetti
+			search: '',
+			labelControl: true,
+			bckgrnSwap: false,
+			fakes : 20,
+			notLoaded : true
 		}
 	},
 
 	created: function (){
-		this.getProducts()
+		setTimeout( () =>{
+			this.getProducts()
+		}, 2000);
+		
 	},
-
 	methods: {
 		getProducts : function(){
 			var self = this;												//	scope this
 			db.collection("products")
 			.get()															//	promise
 			.then(function(e){												//	puntatore interno
-				let data = {}												//	array di oggetti
+				let data = []												//	array di oggetti
 				e.forEach(function(doc) {									//	ciclo su puntatore
-					data[doc.id] = doc.data()
+					data.push(doc.data()) 
 					});		
 			self.products = data;
+			self.notLoaded = !self.notLoaded
 			});
+		},
+		control: function(){
+			this.search === '' ? this.labelControl = true : this.labelControl = false
+		},
+		bckgrnSwapControl: function(){
+			this.bckgrnSwap = !this.bckgrnSwap
+			console.log(this.bckgrnSwap)
+		}
+	},
+	computed:{
+		filteredList(){
+			return this.products.filter(product =>{
+				return product.titolo.toLowerCase().includes(this.search.toLowerCase())
+		})
 		}
 	}
+			
+			
 });
 
 Vue.component('account-managment',{
@@ -312,9 +343,7 @@ Vue.component('card',{
 	data: function (){
 		return {
 			 counter: 0,
-			 isPreferred: false,
-			 productID: [],
-			 userPreferiti: []
+			 isPreferred: false
 		 }
 	},
 	
@@ -331,8 +360,6 @@ Vue.component('card',{
 		addToPreferred: function(){
 			this.isPreferred = !this.isPreferred
 			var self = this
-			var thisId = self.item.id
-			var thisRef = ""
 
 			firebase.auth().onAuthStateChanged(function(user) {
 				if (user) {
@@ -529,6 +556,23 @@ Vue.component('filter-snack',{
 	}
 })
 
+Vue.component('fake-card',{
+	template:`<div class="card-container-fake">
+	<div class="background-masker card-top-fake"></div>
+	
+	<div class="background-masker card-subtitle-fake"></div>
+
+	<div class="background-masker card-image-fake"></div>
+
+	<div class="card-bottom-fake">
+		<span class="background-masker bottom-parts-fake"></span>
+		<span class="background-masker bottom-parts-fake"></span>
+		<span class="background-masker bottom-parts-fake"></span>
+		<span class="background-masker bottom-parts-fake"></span>   
+	</div>
+</div>`
+})
+
 //placeholder per VueRouter
 
 const home = { template: '<main-app></main-app>' }
@@ -542,7 +586,7 @@ const supporto = { template: '<div>Supporto</div>' }
 //struttura array di oggetti
 
 const routes = [
-  { path: '/home', component: home},
+  {path:'/Home/:query', component: home, props:true, name:'home'},
   { path: '/ordini', component: ordini },
   { path: '/preferiti', component: preferiti },
   { path: '/areaPersonale', component: areaPersonale },
@@ -556,7 +600,7 @@ const routes = [
 //Inizializzazione istanza VueRouter
 
 const router = new VueRouter({
-  routes				//importazione array di oggetti routes
+  routes					//importazione array di oggetti routes
 
 });
 
@@ -565,9 +609,8 @@ const router = new VueRouter({
 //inizializzazione istanza Vue
 
 const vue = new Vue({
-	el: '#app',
-			//id elemento connesso al foglio html
-  router				//importazione istanza VueRouter
+	el: '#app',				//id elemento connesso al foglio html
+  router					//importazione istanza VueRouter
 });
 
 
