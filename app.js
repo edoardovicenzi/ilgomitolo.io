@@ -38,21 +38,22 @@ Vue.component('nav-bar',{
 		<div class="top-nav-bar primary">
 			<div class="left-float">
 				<ul>
-					<li><a href="#" @click="toggle()"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
-					<li><router-link class="hidden" to="/Home" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
+					<li><a href="#" @click="toggle"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
+					<li><router-link class="hidden" to="/" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
 				</ul>
 			</div>
 			<div class="right-float">
-				<li><a class="hidden">Registrati!</a></li>
-				<li><a class="login-nav-bar hidden" @click="toggle()">Log In</a></li>
+				<li><a class="hidden" @click="registerControl">Registrati!</a></li>
+				<li><a class="login-nav-bar hidden" @click="loginControl">Accedi</a></li>
 			</div>
 		</div>
 	</div>
 	
-	
-	
-	<div id="sidebar-menu-shadow" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']">
-	<div id="clicker" v-if="behindStatus" @click="toggle()"></div>
+	<login-card v-if="loginStatus" v-on:closeThis="loginControl" v-on:toRegister="swapAccountRegister"></login-card>
+	<register-card v-if="registerStatus" v-on:closeMe="registerControl" v-on:toAccount="swapAccountRegister"></register-card>
+
+	<div id="shadow-for-overlays" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']">
+	<div id="clicker" v-if="behindStatus" @click="clicker"></div>
 	</div>
 	
 	
@@ -65,7 +66,7 @@ Vue.component('nav-bar',{
 
 						<div class="sidebar-body-wrapper">
 							<ul>
-								<router-link to="/home"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
+								<router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
 								<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
 								<router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
 								<div></div>
@@ -78,13 +79,15 @@ Vue.component('nav-bar',{
 	data: function () {
 		return {
 			sidebarStatus: false,
-			behindStatus: false
+			behindStatus: false,
+			loginStatus: false,
+			registerStatus: false
 		}
 	},
 methods : {
 	toggle: function (){
-		this.sidebarStatus = !this.sidebarStatus
-		this.behindStatus = !this.behindStatus
+		this.sidebarStatus = true
+		this.behindStatus = true
 		},
 	preferiti: function(){
 		this.sidebarStatus = !this.sidebarStatus
@@ -97,9 +100,27 @@ methods : {
 		})
 		
 	},
+	clicker: function (){
+		this.behindStatus = false
+		this.sidebarStatus = false
+		this.loginStatus = false
+		this.registerStatus = false
+	},
 	passSearch: function(){
 		console.log(this.search)
 		router.push({name :'home', params:{query: this.search}})
+	},
+	loginControl: function(){
+		this.behindStatus = !this.behindStatus
+		this.loginStatus = !this.loginStatus
+	},
+	registerControl: function(){
+		this.behindStatus = !this.behindStatus
+		this.registerStatus = !this.registerStatus
+	},
+	swapAccountRegister: function (){
+		this.registerStatus = !this.registerStatus
+		this.loginStatus = !this.loginStatus
 	}
 }
 });
@@ -141,7 +162,7 @@ Vue.component('main-app', {
 	created: function (){
 		setTimeout( () =>{
 			this.getProducts()
-		}, 2000);
+		}, 500);
 		
 	},
 	methods: {
@@ -163,7 +184,6 @@ Vue.component('main-app', {
 		},
 		bckgrnSwapControl: function(){
 			this.bckgrnSwap = !this.bckgrnSwap
-			console.log(this.bckgrnSwap)
 		}
 	},
 	computed:{
@@ -227,10 +247,6 @@ methods: {
 		  });
 		  
         }
-        else{
-            console.log('I campi non possono essere vuoti')
-        }
-
             
     },
 
@@ -494,35 +510,176 @@ Vue.component('preferitiCard',{
 	props: ['item']
 });
 
+Vue.component('register-card',{
+	template:`
+	<div class="login-container">
+		<div class="login-clear-button">
+			<span class="material-icons" v-on:click="closeSelf">
+				clear
+			</span>
+		</div>
+		<div class="login-title"><h1>Inserisci i tuoi dati!</h1></div>	
+			<form class="form-container">
+				<div class="auth-text-container">
+					<transition name="fade">
+						<div v-if="userStatus">
+							<h4>Username</h4>
+						</div>
+					</transition>
+					<input class="input-field" type="text" name="username" placeholder="Username" v-on:focus="userControl" v-on:blur="userControl" required v-model="username">
+				</div>
+				<div class="auth-text-container">
+					<transition name="fade">
+						<div v-if="emailStatus">
+							<h4>Email</h4>
+						</div>
+					</transition>
+					<input class="input-field" type="email" name="email" placeholder="Email" v-on:focus="emailControl" v-on:blur="emailControl" required v-model="email">
+				</div>
+				<div class="auth-text-container">
+					<transition name="fade">
+						<div v-if="pswStatus">
+							<h4>Password</h4>
+						</div>
+					</transition>
+					<input class="input-field" type="password" name="password" placeholder="Password" v-on:focus="pswControl" v-on:blur="pswControl" required v-model="password">
+				</div>
+				<div class="login-footer">
+					<div class="register-text">
+						<a href="#" v-on:click="swap"><h2>Hai già un account? Clicca qui!</h2></a>
+					</div>
+					<button class="login-button ripple" type="submit" v-on:click="registerAccount">
+						<h1>Registrati</h1>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>`,
+	data: function (){
+		return{
+			username:"",
+			email: "",
+			password: "",
+			pswStatus : false,
+			userStatus : false,
+			emailStatus: false
+		}
+	},
+	methods:{
+		pswControl: function (){
+			this.pswStatus = !this.pswStatus
+		},
+		userControl: function (){
+			this.userStatus = !this.userStatus
+		},
+		emailControl: function (){
+			this.emailStatus = !this.emailStatus
+		},
+		closeSelf: function (){
+			this.$emit('closeMe')
+		},
+		swap: function (){
+			this.$emit('toAccount')
+		},
+		registerAccount: function(){
+        
+			if (this.email != "" && this.password != "" && this.username != ""){
+				firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+				.then( e => {
+					db.collection('users').add({
+						email: this.email,
+						preferiti: [],
+						username: this.username
+					});
+				}                               
+				)
+				.catch(function(error) {
+				// Handle Errors here.
+				var errorCode = error.code;
+				var errorMessage = error.message;
+				// ...
+				console.log("C'è stato un problema")
+			  });
+			this.$emit('closeMe')
+			}
+				
+		}
+	  }
+	  
+})
+
 Vue.component('login-card',{
 	template:`
 	<div class="login-container">
-		<div class="login-title"><h1>Inserisci i tuoi dati!</h1></div>
-			<div class="login-form">
-				<form class="form-container">
-					<div class="auth-text-container">
-						<div class="test">
-							<h1>Email</h1>
+        <div class="login-clear-button">
+            <span class="material-icons" v-on:click="closeSelf">
+                clear
+            </span>
+		</div>
+		<div class="login-title"><h1>Inserisci i tuoi dati!</h1></div>	
+			<form class="form-container">
+				<div class="auth-text-container">
+					<transition name="fade">
+						<div v-if="userStatus">
+							<h4>Email</h4>
 						</div>
-						<input class="input-field" type="text" name="email" type="email" placeholder="Email">
-					</div>
-					<div class="auth-text-container">
-						<div class="test">
-							<h1>Password</h1>
+					</transition>
+					<input class="input-field" type="email" name="email" placeholder="Email" v-on:focus="userControl" v-on:blur="userControl" required v-model="email">
+				</div>
+				<div class="auth-text-container">
+					<transition name="fade">
+						<div v-if="pswStatus">
+							<h4>Password</h4>
 						</div>
-						<input class="input-field" type="password" name="password" placeholder="Password">
-					</div>
-				</form>
-			</div>
-				<div class="login-footer">
+					</transition>
+					<input class="input-field" type="password" name="password" placeholder="Password" v-on:focus="pswControl" v-on:blur="pswControl" required v-model="password">
+				</div>
+			    <div class="login-footer">
 					<div class="register-text">
-						<a href="#"><h2>Non hai un account? Clicca qui!</h2></a>
+						<a href="#" v-on:click="swap"><h2>Non hai un account? Clicca qui!</h2></a>
 					</div>
-				<a href="#"><div class="button">
-					<h1>Login</h1>
-			</div></a>
+                    <button class="login-button ripple" type="submit" v-on:click="loginAccount">
+                        <h1>Login</h1>
+					</button>
+				</div>
+            </form>
 		</div>
   	</div>`,
+	  data: function (){
+		  return {
+			  email: "",
+			  password: "",
+			  pswStatus : false,
+			  userStatus : false
+		  }
+	  },
+	  methods:{
+		pswControl: function (){
+			this.pswStatus = !this.pswStatus
+		},
+		userControl: function (){
+			this.userStatus = !this.userStatus
+		},
+		closeSelf: function (){
+			this.$emit('closeThis')
+		},
+		swap: function (){
+			this.$emit('toRegister')
+		},
+		loginAccount: function(){
+			if (this.email != "" && this.password != ""){
+				firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+				.catch(function(error) {
+					// Handle Errors here.
+					var errorCode = error.code;
+					var errorMessage = error.message;
+					console.log('email o password errate')
+					// ...
+				  });
+				this.$emit('closeThis')          
+			}
+		}
+	  }
 
 })
 
