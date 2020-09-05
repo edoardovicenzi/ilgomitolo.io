@@ -43,14 +43,15 @@ Vue.component('nav-bar',{
 				</ul>
 			</div>
 			<div class="right-float">
-				<li><a class="hidden" @click="registerControl">Registrati!</a></li>
-				<li><a class="login-nav-bar hidden" @click="loginControl">Accedi</a></li>
+				<li v-if="!isLogged"><a class="register-nav-bar hidden ripple" @click="registerControl">Registrati</a></li>
+				<li v-if="!isLogged"><a class="login-nav-bar hidden" @click="loginControl">Accedi</a></li>
+				<li v-if="isLogged"><a class="login-nav-bar hidden" @click="signOut">Signout</a></li>
 			</div>
 		</div>
 	</div>
 	
-	<login-card v-if="loginStatus" v-on:closeThis="loginControl" v-on:toRegister="swapAccountRegister"></login-card>
-	<register-card v-if="registerStatus" v-on:closeMe="registerControl" v-on:toAccount="swapAccountRegister"></register-card>
+	<login-card v-if="loginStatus" v-on:closeThis="loginControl" v-on:toRegister="swapAccountRegister" v-on:isLogged="accountCheck"></login-card>
+	<register-card v-if="registerStatus" v-on:closeMe="registerControl" v-on:toAccount="swapAccountRegister" v-on:isRegistered="accountCheck"></register-card>
 
 	<div id="shadow-for-overlays" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']">
 	<div id="clicker" v-if="behindStatus" @click="clicker"></div>
@@ -63,31 +64,33 @@ Vue.component('nav-bar',{
 		  <div class="sidebar-head primary">
 				  <img class="sidebar-account-image" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="">
 		  </div>
-
-						<div class="sidebar-body-wrapper">
-							<ul>
-								<router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
-								<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
-								<router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
-								<div></div>
-								<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
-								<router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
-							</ul>
-						</div>				
-	</div>
+				<div class="sidebar-body-wrapper">
+					<ul>
+						<router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
+						<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
+						<router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
+						<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
+						<router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
+					</ul>
+				</div>				
+		</div>
 </div>`,
 	data: function () {
 		return {
+			isLogged: false,
 			sidebarStatus: false,
 			behindStatus: false,
 			loginStatus: false,
 			registerStatus: false
 		}
 	},
+	created: function (){
+		this.accountCheck()
+	},
 methods : {
 	toggle: function (){
-		this.sidebarStatus = true
-		this.behindStatus = true
+		this.sidebarStatus = !this.sidebarStatus
+		this.behindStatus = !this.behindStatus
 		},
 	preferiti: function(){
 		this.sidebarStatus = !this.sidebarStatus
@@ -95,7 +98,7 @@ methods : {
 		firebase.auth().onAuthStateChanged(user =>{
 			if (!user){															// se esiste un user loggato
 			this.$router.go('home')
-			console.log("Non hai effettuato il login!")
+			alert('non hai loggato')
 		}
 		})
 		
@@ -105,10 +108,6 @@ methods : {
 		this.sidebarStatus = false
 		this.loginStatus = false
 		this.registerStatus = false
-	},
-	passSearch: function(){
-		console.log(this.search)
-		router.push({name :'home', params:{query: this.search}})
 	},
 	loginControl: function(){
 		this.behindStatus = !this.behindStatus
@@ -121,7 +120,24 @@ methods : {
 	swapAccountRegister: function (){
 		this.registerStatus = !this.registerStatus
 		this.loginStatus = !this.loginStatus
-	}
+	},
+	accountCheck: function(){
+		firebase.auth().onAuthStateChanged(user =>{
+			if (user){
+				this.isLogged = true
+			}
+			else{
+				this.isLogged = false
+			}
+		})
+	},
+	signOut: function(){
+        firebase.auth().signOut().then(function() {
+			this.isLogged = false
+          }).catch(function(error) {
+            // An error happened.
+		  });
+    }
 }
 });
 
@@ -198,86 +214,15 @@ Vue.component('main-app', {
 });
 
 Vue.component('account-managment',{
-	template:`<div>
-         <div>
-			<form>
-				<input type="email" placeholder="email" required v-model="email">
-				<input type="password" placeholder="password" required v-model="password">
-				<button @click="loginAccount">login</button>
-			</form>
-		</div>
-		<button @click="signOut">signout</button>
-		<div>
-			<form>
-				<input type="email" placeholder="email" required v-model="email">
-				<input type="password" placeholder="password" required v-model="password">
-				<input type="text" placeholder="username" required v-model="username">
-				<button type="submit" @click="registerAccount">registrati</button>
-			</form> 
-		</div>   
-    </div>`,
+	template:``,
 
 data: function(){
     return{
-        email: "",
-        password: "",
-		username: "",
-		usernameID: []
     }
 },
 methods: {
-    registerAccount: function(){
-        
-        if (this.email != "" && this.password != "" && this.username != ""){
-            firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-            .then( e => {
-                db.collection('users').add({
-                    email: this.email,
-                    preferiti: [],
-                    username: this.username
-                });
-            }                               
-            )
-            .catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            // ...
-            console.log("C'è stato un problema")
-		  });
-		  
-        }
-            
-    },
 
-    loginAccount: function(){
-        if (this.email != "" && this.password != ""){
-			firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-			.catch(function(error) {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log('email o password errate')
-                // ...
-			  });
-			  document.cookie = "email="+ firebase.auth().currentUser.email
-                  	console.log(document.cookie)             
-		}
-		else{
-			console.log("I campi non possono essere vuoti!")
-		}
-        
-
-    },
-    signOut: function(){
-        firebase.auth().signOut().then(function() {
-			document.cookie = "email="
-			console.log(document.cookie)
-          }).catch(function(error) {
-            // An error happened.
-          });
     }
-        }
 });
 
 Vue.component('preferiti',{
@@ -600,7 +545,7 @@ Vue.component('register-card',{
 				// ...
 				console.log("C'è stato un problema")
 			  });
-			this.$emit('closeMe')
+			this.$emit('isRegistered')
 			}
 				
 		}
@@ -676,7 +621,7 @@ Vue.component('login-card',{
 					console.log('email o password errate')
 					// ...
 				  });
-				this.$emit('closeThis')          
+				this.$emit('isLogged')          
 			}
 		}
 	  }
@@ -694,7 +639,20 @@ Vue.component('filter-snack',{
 			</div>
 		
 		<div v-if="snackStatus" class="filter-list-container">
-			<div class="filter-button"><h2>Test</h2></div>
+			<div class="filter-button">
+				<ul>
+					<h3>Materiale</h3>
+					<li>
+						<div class="checkbox-inactive"></div>
+					<div class="checkbox-active">
+						<span class="material-icons" style="color: white;">
+							done
+						</span>
+					</div>
+					<label for="Materiale">Materiale</label>
+					</li>
+				</ul>
+			</div>	
 			<div class="filter-button"><h2>Test</h2></div>
 			<div class="filter-button"><h2>Test</h2></div>
 			<div class="filter-button"><h2>Test</h2></div>
@@ -708,7 +666,6 @@ Vue.component('filter-snack',{
 	methods:{
 		changeStatus: function(){
 			this.snackStatus = !this.snackStatus
-
 		}
 	}
 })
@@ -743,7 +700,6 @@ const supporto = { template: '<div>Supporto</div>' }
 //struttura array di oggetti
 
 const routes = [
-  {path:'/Home/:query', component: home, props:true, name:'home'},
   { path: '/ordini', component: ordini },
   { path: '/preferiti', component: preferiti },
   { path: '/areaPersonale', component: areaPersonale },

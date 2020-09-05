@@ -35,7 +35,7 @@ font-size: 15px;
 margin: 0px;
 }
 li {
-	
+	list-style: none;
 }
 ul {
 	padding:0px;
@@ -51,19 +51,47 @@ ul {
 	background-color: #F7A48B;
 }
 
+.label-for-filter-title{
+	margin-left: 15px;
+}
 
+.checkbox-inactive{
+	background: white;
+	width: 24px;
+	height: 24px;
+	border-style: solid;
+	border-color: gray;
+	border-radius: 5px;
+	margin-right: 15px;
+}
 
+.checkbox-active{
+	background: gray;
+	width: 24px;
+	height: 24px;
+	border-style: solid;
+	border-color: gray;
+	border-radius: 5px;
+	margin-right: 15px;
+}
 
+.register-nav-bar{
+	border-radius: 5px;
+	background-color: #F7A48B;
+	padding: 10px;
+}
 
 .login-nav-bar{
-	border-radius: 20px;
+	border-radius: 5px;
 	background-color: white;
 	padding: 10px;
 	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 }
+
 .login-nav-bar:hover{
 	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
+
 .top-nav-bar {
 	position: fixed;
   top: 0;
@@ -72,21 +100,25 @@ ul {
 	z-index: 2;
 	width: 100%;
 }
+
 .top-nav-bar a {
   color: black;
   text-decoration: none;
 }
+
 .left-float {
 	 float:left;
- }
- .right-float{
+}
+
+.right-float{
 	 float:right;
- }
- .top-nav-bar li {
+}
+
+.top-nav-bar li {
 	 display: inline;
 	 margin: 0 10px;
 	 line-height: 56px;
- }
+}
 
 
 
@@ -468,23 +500,36 @@ border-radius: 70px;
 margin: 20px 25px;
 }
 
-
+.checkbox-filter-list{
+	text-align: center;
+}
+.checkbox-filter-list > li{
+	margin: 10px;
+}
 .filter{
 	width: 100%;
 }
+
+.filter-category-title{
+	text-align: center;
+}
+
 .filter-list-container{
 	width: 100%;
 	position: relative;
-	display: flex;
-	justify-content: space-around;
-	flex-wrap: wrap;
 	margin-left: 25px;
 }
 
-.filterTitle{
-	margin-left: 10px;
+.filter-list-body{
+	
 }
 
+.filter-category{
+	width: 22%;
+	background-color: #ffffff;
+	padding: 10px;
+	float: left; 
+}
 
 
 
@@ -501,18 +546,6 @@ margin: 20px 25px;
 	background-size: 100%;
 	transition: background 0s;
   }
-
-.filter-button{
-	text-align: center;
-	width: 60px;
-	border: 0.01em solid rgb(173, 173, 173);
-	background-color: #ffffff;
-  	color: rgb(201, 201, 201);
-  	padding: 8px 12px;
-	font-size: 16px;
-	border-radius: 13px;
-}
-
 
 
 .card-container-fake{
