@@ -125,6 +125,7 @@ methods : {
 		firebase.auth().onAuthStateChanged(user =>{
 			if (user){
 				this.isLogged = true
+				this.clicker()
 			}
 			else{
 				this.isLogged = false
@@ -464,7 +465,7 @@ Vue.component('register-card',{
 			</span>
 		</div>
 		<div class="login-title"><h1>Inserisci i tuoi dati!</h1></div>	
-			<form class="form-container">
+			<div class="form-container">
 				<div class="auth-text-container">
 					<transition name="fade">
 						<div v-if="userStatus">
@@ -497,7 +498,7 @@ Vue.component('register-card',{
 						<h1>Registrati</h1>
 					</button>
 				</div>
-			</form>
+			</div>
 		</div>
 	</div>`,
 	data: function (){
@@ -543,7 +544,7 @@ Vue.component('register-card',{
 				var errorCode = error.code;
 				var errorMessage = error.message;
 				// ...
-				console.log("C'è stato un problema")
+				console.log(errorCode, errorMessage)
 			  });
 			this.$emit('isRegistered')
 			}
@@ -562,7 +563,7 @@ Vue.component('login-card',{
             </span>
 		</div>
 		<div class="login-title"><h1>Inserisci i tuoi dati!</h1></div>	
-			<form class="form-container">
+			<div class="form-container">
 				<div class="auth-text-container">
 					<transition name="fade">
 						<div v-if="userStatus">
@@ -587,7 +588,7 @@ Vue.component('login-card',{
                         <h1>Login</h1>
 					</button>
 				</div>
-            </form>
+            </div>
 		</div>
   	</div>`,
 	  data: function (){
@@ -631,41 +632,44 @@ Vue.component('login-card',{
 Vue.component('filter-snack',{
 	template:`
 	<div class="filter">
-			<div class="filter-snack-container ripple" @click="changeStatus">
-				<i class="material-icons">filter_list</i>
-				<span>
-					<h2 class="filterTitle">FILTRA</h2>
-				</span>
-			</div>
-		
+		<div class="filter-snack-container ripple" @click="changeStatus">
+			<i class="material-icons">filter_list</i>
+			<span>
+				<h2 class="filterTitle">FILTRA</h2>
+			</span>
+		</div>
+
 		<div v-if="snackStatus" class="filter-list-container">
-			<div class="filter-button">
-				<ul>
-					<h3>Materiale</h3>
-					<li>
-						<div class="checkbox-inactive"></div>
-					<div class="checkbox-active">
-						<span class="material-icons" style="color: white;">
-							done
-						</span>
-					</div>
-					<label for="Materiale">Materiale</label>
-					</li>
-				</ul>
-			</div>	
-			<div class="filter-button"><h2>Test</h2></div>
-			<div class="filter-button"><h2>Test</h2></div>
-			<div class="filter-button"><h2>Test</h2></div>
+
+			<h1 class="filter-category-title">Materiale</h1>
+			<div class="checkbox-filter-list">
+					<checkbox-filter-component v-for="material in materials"></checkbox-filter-component>	
+			</div>
+
+			<h1 class="filter-category-title">Misura</h1>
+			<div class="checkbox-filter-list">
+				<keep-alive>
+					<checkbox-filter-component></checkbox-filter-component>
+				</keep-alive>
+			</div>		
 		</div>
 	</div>`,
 	data: function(){
 		return{
-			snackStatus: false
+			snackStatus: false,
+			materials: [1,2,3,4,5,6,7,8,9,10],
+			measures:[]
 		}
+	},
+	created () {
+		this.getAll()
 	},
 	methods:{
 		changeStatus: function(){
 			this.snackStatus = !this.snackStatus
+		},
+		getAll (){
+			
 		}
 	}
 })
@@ -685,6 +689,29 @@ Vue.component('fake-card',{
 		<span class="background-masker bottom-parts-fake"></span>   
 	</div>
 </div>`
+})
+
+Vue.component('checkbox-filter-component',{
+	template:`
+	<div>
+		<div class="checkbox-active" v-if="isChecked" v-on:click="toggle">
+			<span class="material-icons" style="color: white;">
+				done
+			</span>
+		</div>
+		<div class="checkbox-inactive" type="button" v-if="!isChecked" v-on:click="toggle"></div>
+		<div class="label-for-filter-title">Materiale</div>	
+	</div>`,
+	data: function (){
+		return {
+			isChecked: false
+		}
+	},
+	methods:{
+		toggle (){
+			this.isChecked = !this.isChecked
+		}
+	}
 })
 
 //placeholder per VueRouter
