@@ -1,7 +1,7 @@
 //Inizializzazione Firebase
 const config ={
 
-	apiKey: "AIzaSyBAYcT-s5BMRj3Jm4REBufIsMAbSh-X8WU",
+		apiKey: "AIzaSyBAYcT-s5BMRj3Jm4REBufIsMAbSh-X8WU",
 	    authDomain: "ilgomi.firebaseapp.com",
 	    databaseURL: "https://ilgomi.firebaseio.com",
 	    projectId: "ilgomi",
@@ -14,14 +14,12 @@ const config ={
 };
 firebase.initializeApp(config);
 const db = firebase.firestore();
-const user = firebase.auth().currentUser;
 
 	
 
 
 
 //dichiarazione componenti vue
-
 Vue.component('app-body',{
 	template:`<div class="app-body">
 		<nav-bar></nav-bar>
@@ -43,9 +41,12 @@ Vue.component('nav-bar',{
 				</ul>
 			</div>
 			<div class="right-float">
-				<li v-if="!isLogged"><a class="register-nav-bar hidden ripple" @click="registerControl">Registrati</a></li>
+				<ul>
+					<li v-if="!isLogged"><a class="register-nav-bar hidden ripple" @click="registerControl">Registrati</a></li>
 				<li v-if="!isLogged"><a class="login-nav-bar hidden" @click="loginControl">Accedi</a></li>
 				<li v-if="isLogged"><a class="login-nav-bar hidden" @click="signOut">Signout</a></li>
+				</ul>
+				
 			</div>
 		</div>
 	</div>
@@ -61,19 +62,32 @@ Vue.component('nav-bar',{
 
 		
 	<div id="sidebar-menu" v-bind:class="[sidebarStatus ? 'menu-sandwitch-active' : 'menu-sandwitch-inactive']">
-		  <div class="sidebar-head primary">
-				  <img class="sidebar-account-image" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="">
-		  </div>
-				<div class="sidebar-body-wrapper">
-					<ul>
-						<router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
-						<router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
-						<router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
-						<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
-						<router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
-					</ul>
-				</div>				
+		<div class="sidebar-head primary">
+				<div v-if="isLogged" class="sidebar-head-isLogged">
+					<div class="sidebar-image-container">
+						<img class="sidebar-account-image" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png">
+					</div>
+					
+					<div style="margin: auto; float: right;"> 
+						<h1 class="sidebar-name">Ciao,</h1>
+						<h1 class="sidebar-name">{{ username }}</h1>
+					</div>
+				</div>
+				
+				<div v-if="!isLogged" style="width: 100%;">
+					<h2 style="text-align: center; line-height: 112px;">Effettua il login per scoprire tutte le modalità!</h2>
+				</div>
 		</div>
+			  <div class="sidebar-body-wrapper">
+				  <ul>
+					  <router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
+					  <router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
+					  <router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
+					  <router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
+					  <router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
+				  </ul>
+			  </div>
+	</div>
 </div>`,
 	data: function () {
 		return {
@@ -81,84 +95,72 @@ Vue.component('nav-bar',{
 			sidebarStatus: false,
 			behindStatus: false,
 			loginStatus: false,
-			registerStatus: false
+			registerStatus: false,
+			username: ''
 		}
 	},
 	created: function (){
 		this.accountCheck()
 	},
-methods : {
-	toggle: function (){
-		this.sidebarStatus = !this.sidebarStatus
-		this.behindStatus = !this.behindStatus
+	methods : {
+		toggle: function (){
+			this.sidebarStatus = !this.sidebarStatus
+			this.behindStatus = !this.behindStatus
+			},
+		preferiti: function(){
+			this.sidebarStatus = !this.sidebarStatus
+			this.behindStatus = !this.behindStatus
+			firebase.auth().onAuthStateChanged(user =>{
+				if (!user){														// se esiste un user loggato
+					this.$router.go('home')
+			}
+			})
+			
 		},
-	preferiti: function(){
-		this.sidebarStatus = !this.sidebarStatus
-		this.behindStatus = !this.behindStatus
-		firebase.auth().onAuthStateChanged(user =>{
-			if (!user){															// se esiste un user loggato
-			this.$router.go('home')
-			alert('non hai loggato')
-		}
-		})
-		
-	},
-	clicker: function (){
-		this.behindStatus = false
-		this.sidebarStatus = false
-		this.loginStatus = false
-		this.registerStatus = false
-	},
-	loginControl: function(){
-		this.behindStatus = !this.behindStatus
-		this.loginStatus = !this.loginStatus
-	},
-	registerControl: function(){
-		this.behindStatus = !this.behindStatus
-		this.registerStatus = !this.registerStatus
-	},
-	swapAccountRegister: function (){
-		this.registerStatus = !this.registerStatus
-		this.loginStatus = !this.loginStatus
-	},
-	accountCheck: function(){
-		firebase.auth().onAuthStateChanged(user =>{
-			if (user){
-				this.isLogged = true
-				this.clicker()
-			}
-			else{
+		clicker: function (){
+			this.behindStatus = false
+			this.sidebarStatus = false
+			this.loginStatus = false
+			this.registerStatus = false
+		},
+		loginControl: function(){
+			this.behindStatus = !this.behindStatus
+			this.loginStatus = !this.loginStatus
+		},
+		registerControl: function(){
+			this.behindStatus = !this.behindStatus
+			this.registerStatus = !this.registerStatus
+		},
+		swapAccountRegister: function (){
+			this.registerStatus = !this.registerStatus
+			this.loginStatus = !this.loginStatus
+		},
+		accountCheck: function(){
+			firebase.auth().onAuthStateChanged(user =>{
+				if (user){
+					this.username = user.displayName
+					this.isLogged = true
+					this.clicker()
+				}
+				else{
+					this.isLogged = false
+				}
+			})
+		},
+		signOut: function(){
+			firebase.auth().signOut().then(function() {
 				this.isLogged = false
-			}
-		})
-	},
-	signOut: function(){
-        firebase.auth().signOut().then(function() {
-			this.isLogged = false
-          }).catch(function(error) {
-            // An error happened.
-		  });
-    }
-}
+			}).catch(function(error) {
+				// An error happened.
+			});
+		}
+	}
 });
 
 Vue.component('main-app', {
   template:`
-  	<div>
-		<div class="search-bar-main-container">
-			<div :class="bckgrnSwap ? 'search-bar-main-wrapper-active' : 'search-bar-main-wrapper-inactive'">
-				<span class="material-icons search-ico">
-					search
-				</span>
-				<span class="search-bar-inner-container">
-					<label v-if="labelControl" class="search-label"><h4>CERCA QUI...</h4></label>
-					<input type="text" v-model='search' v-on:keyup="control" class="search-input" v-on:focus="bckgrnSwapControl" v-on:blur="bckgrnSwapControl">
-				</span>
-			</div>
-			
-		</div>
-		
-		
+  	<div class="main-app-wrapper">
+		<search-bar v-on:searchThis="search"></search-bar>
 		<filter-snack></filter-snack>
 		<div class="products-card-container">
 			<card v-for="product in filteredList" :item="product" v-if="!notLoaded"></card>
@@ -168,9 +170,7 @@ Vue.component('main-app', {
 	data: function (){
 		return {
 			products : [],													//	array di oggetti
-			search: '',
-			labelControl: true,
-			bckgrnSwap: false,
+			searchItem: '',
 			fakes : 20,
 			notLoaded : true
 		}
@@ -180,33 +180,50 @@ Vue.component('main-app', {
 		setTimeout( () =>{
 			this.getProducts()
 		}, 500);
-		
 	},
 	methods: {
 		getProducts : function(){
 			var self = this;												//	scope this
+
 			db.collection("products")
 			.get()															//	promise
-			.then(function(e){												//	puntatore interno
+			.then(function(snap){											//	puntatore interno
 				let data = []												//	array di oggetti
-				e.forEach(function(doc) {									//	ciclo su puntatore
+				snap.forEach((doc) =>{										//	ciclo su puntatore
 					data.push(doc.data()) 
 					});		
-			self.products = data;
-			self.notLoaded = !self.notLoaded
-			});
+				self.products = data;
+				self.notLoaded = !self.notLoaded
+			})
+			
+			firebase.auth().onAuthStateChanged(user =>{
+				if (user){
+					db.collection('users').doc(user.uid).collection('preferiti').get()
+					.then(snap => {
+						snap.forEach(doc => {
+							let data = []
+							data.push(doc.data())
+							for (let i=0; i < data.length; i++){
+								for (let j=0; j < self.products.length; j++) {
+									if (data[i].id == self.products[j].id){
+										self.products[j].isPreferred = true
+									}
+								}
+							}
+						})
+					})
+				}
+			})
+			
 		},
-		control: function(){
-			this.search === '' ? this.labelControl = true : this.labelControl = false
-		},
-		bckgrnSwapControl: function(){
-			this.bckgrnSwap = !this.bckgrnSwap
+		search: function(event){
+			this.searchItem = event
 		}
 	},
 	computed:{
 		filteredList(){
 			return this.products.filter(product =>{
-				return product.titolo.toLowerCase().includes(this.search.toLowerCase())
+				return product.titolo.toLowerCase().includes(this.searchItem.toLowerCase())
 		})
 		}
 	}
@@ -214,25 +231,21 @@ Vue.component('main-app', {
 			
 });
 
-Vue.component('account-managment',{
-	template:``,
-
-data: function(){
-    return{
-    }
-},
-methods: {
-
-    }
-});
-
 Vue.component('preferiti',{
-	template:`<div class="products-card-container">
-		<div v-if="isEmpty"><h2>La lista è vuota!</h2></div>
-		<preferitiCard v-for="preferiti in preferitiList" :item="preferiti"></preferitiCard>
+	template:`
+	<div class="main-app-wrapper">
+		<search-bar v-on:searchThis="search"></search-bar>
+		<div v-if="isEmpty">
+			<img class="preferred-empty-image" src="https://image.flaticon.com/icons/svg/1380/1380641.svg">
+			<div class="preferred-empty-title"><h1>La tua lista è vuota! Prova ad aggiungere qualche prodotto...</h1></div>
+		</div>
+		<div class="products-card-container">
+			<preferitiCard v-for="preferiti in filteredList" :item="preferiti"></preferitiCard>
+		</div>
 	</div>`,
 	data: function (){
 		return{
+			searchItem:'',
 			preferitiList: [],
 			isEmpty: false
 		}
@@ -260,14 +273,35 @@ Vue.component('preferiti',{
 						})
 						self.preferitiList = items
 						}
-						
 					})
 				}
-			  });
+			});
+		},
+		search: function(event){
+			this.searchItem = event
+		}
+	},
+	computed:{
+		filteredList(){
+			return this.preferitiList.filter(product =>{
+				return product.titolo.toLowerCase().includes(this.searchItem.toLowerCase())				
+			})
 		}
 	}
 
 })
+
+Vue.component('account-managment',{
+	template:``,
+
+data: function(){
+    return{
+    }
+},
+methods: {
+
+    }
+});
 
 Vue.component('card',{
 	template:`<div class="card-container">
@@ -287,25 +321,21 @@ Vue.component('card',{
 
 		<div class="card-bottom">
 				<a><h4>Info</h4></a>
-				<a v-if="isPreferred == false" @click="addToPreferred"><i class="material-icons">favorite_border</i></a>
-				<a v-if="isPreferred == true" @click="removeToPreferred"><i class="material-icons">favorite</i></a>
-					<div class="counter-container">
-						<a class="counter-remove"@click="counterRemove"><i class="material-icons">remove</i></a>
-						<h4>{{counter}}</h4>
-						<a class="counter-add" @click="counterAdd"><i class="material-icons">add</i></a>
-					</div>
-					<div class="card-buy-button">
-						<a><h4>Aggiungi</h4></a>
-					</div>
-
-
+				<a v-if="item.isPreferred == false" @click="addToPreferred"><i class="material-icons">favorite_border</i></a>
+				<a v-if="item.isPreferred == true" @click="removeToPreferred"><i class="material-icons">favorite</i></a>
+				<div class="counter-container">
+					<a class="counter-remove"@click="counterRemove"><i class="material-icons">remove</i></a>
+					<h4>{{counter}}</h4>
+					<a class="counter-add" @click="counterAdd"><i class="material-icons">add</i></a>
+				</div>
+				<div class="card-buy-button ripple" @click="addToCart">
+					<a><h4>Aggiungi</h4></a>
+				</div>
 		</div>
-
 	</div>`,
 	data: function (){
 		return {
-			 counter: 0,
-			 isPreferred: false
+			 counter: 0
 		 }
 	},
 	
@@ -320,31 +350,17 @@ Vue.component('card',{
 		}
 	},
 		addToPreferred: function(){
-			this.isPreferred = !this.isPreferred
+			this.item.isPreferred = !this.item.isPreferred
 			var self = this
-
 			firebase.auth().onAuthStateChanged(function(user) {
 				if (user) {
 					db.collection('users').doc(user.uid).collection('preferiti').add(self.item)
-				}
-				db.collection("users").doc(user.uid).collection('preferiti')
-				.get()
-				.then(snap =>{
-					snap.forEach(doc=>{
-						db.collection("users").doc(user.uid).collection('preferiti').doc(doc.id)
-						.update({
-							isPreferred : true
-						}) 
-					})
-				})
-				
-					
+				}	
 			  });		
 			
 	},
 		removeToPreferred: function(){
-			this.isPreferred = !this.isPreferred;
-			var self = this;
+			this.item.isPreferred = !this.item.isPreferred
 			var thisId = this.item.id
 			
 			firebase.auth().onAuthStateChanged(function(user) {
@@ -356,11 +372,36 @@ Vue.component('card',{
 							doc.ref.delete();
 						})
 					})
-				} else {
-					alert("non hai effettuato il login!")
 				}
 			  });
-			}
+			},
+		addToCart (){
+			var self = this
+			var thisId = this.item.id
+			if (this.counter != 0){
+				firebase.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					db.collection('users').doc(user.uid).collection('orders').where('product.id', '==', thisId).get()
+					.then(snap =>{
+						if (snap.empty){
+							db.collection('users').doc(user.uid).collection('orders').add({
+								quantity : self.counter,
+								product : self.item
+							})
+						}
+						else{
+							snap.forEach(doc=>{
+								count = self.counter + doc.data().quantity
+								db.collection('users').doc(user.uid).collection('orders').doc(doc.id).update({
+									quantity : count
+								})
+							})
+						}
+					})
+				}	
+				});
+			}				
+		}
 },
 	props: ['item']
 });
@@ -400,7 +441,6 @@ Vue.component('preferitiCard',{
 		return {
 			 counter: 0,
 			 isPreferred: Boolean,
-			 productID: "",
 			 userPreferiti: []
 		 }
 	},
@@ -528,17 +568,9 @@ Vue.component('register-card',{
 			this.$emit('toAccount')
 		},
 		registerAccount: function(){
-        
+			var self = this
 			if (this.email != "" && this.password != "" && this.username != ""){
-				firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-				.then( e => {
-					db.collection('users').add({
-						email: this.email,
-						preferiti: [],
-						username: this.username
-					});
-				}                               
-				)
+				firebase.auth().createUserWithEmailAndPassword(this.email, this.password)                        
 				.catch(function(error) {
 				// Handle Errors here.
 				var errorCode = error.code;
@@ -546,6 +578,15 @@ Vue.component('register-card',{
 				// ...
 				console.log(errorCode, errorMessage)
 			  });
+			firebase.auth().onAuthStateChanged(user =>{
+				if (user){
+					user.displayName = this.username
+					db.collection('users').doc(user.uid).set({
+						email: this.email,
+						username: this.username
+					});
+				}
+			})
 			this.$emit('isRegistered')
 			}
 				
@@ -639,25 +680,25 @@ Vue.component('filter-snack',{
 			</span>
 		</div>
 
+		<transition name="slide">
 		<div v-if="snackStatus" class="filter-list-container">
 
 			<h1 class="filter-category-title">Materiale</h1>
 			<div class="checkbox-filter-list">
-					<checkbox-filter-component v-for="material in materials"></checkbox-filter-component>	
+					<checkbox-filter-component v-for="material in materials" v-bind:materiale="material"></checkbox-filter-component>	
 			</div>
 
 			<h1 class="filter-category-title">Misura</h1>
 			<div class="checkbox-filter-list">
-				<keep-alive>
-					<checkbox-filter-component></checkbox-filter-component>
-				</keep-alive>
+					<checkbox-filter-component v-for="measure in measures" v-bind:misura="measure"></checkbox-filter-component>
 			</div>		
 		</div>
+		</transition>
 	</div>`,
 	data: function(){
 		return{
 			snackStatus: false,
-			materials: [1,2,3,4,5,6,7,8,9,10],
+			materials: [],
 			measures:[]
 		}
 	},
@@ -669,7 +710,12 @@ Vue.component('filter-snack',{
 			this.snackStatus = !this.snackStatus
 		},
 		getAll (){
-			
+			var self = this;
+			db.collection('assets').doc('assets').get()
+			.then(doc=>{
+				self.materials = doc.data().materiali
+				self.measures = doc.data().misure
+			})
 		}
 	}
 })
@@ -700,7 +746,7 @@ Vue.component('checkbox-filter-component',{
 			</span>
 		</div>
 		<div class="checkbox-inactive" type="button" v-if="!isChecked" v-on:click="toggle"></div>
-		<div class="label-for-filter-title">Materiale</div>	
+		<div class="label-for-filter-title">{{ materiale }}{{ misura }}</div>	
 	</div>`,
 	data: function (){
 		return {
@@ -711,13 +757,189 @@ Vue.component('checkbox-filter-component',{
 		toggle (){
 			this.isChecked = !this.isChecked
 		}
+	},
+	props:['misura', 'materiale']
+})
+
+Vue.component('search-bar',{
+	template:`
+	<div class="search-bar-main-container">
+		<div :class="bckgrnSwap ? 'search-bar-main-wrapper-active' : 'search-bar-main-wrapper-inactive'">
+			<span class="material-icons search-ico">
+				search
+			</span>
+			<span class="search-bar-inner-container">
+				<label v-if="labelControl" class="search-label"><h4>CERCA QUI...</h4></label>
+				<input type="text" v-model='searchbar' v-on:keyup="control" class="search-input" v-on:focus="bckgrnSwapControl" v-on:blur="bckgrnSwapControl">
+			</span>
+		</div>
+	</div>
+	`,
+	data (){
+		return{
+			searchbar: '',
+			labelControl: true,
+			bckgrnSwap: false,
+		}
+	},
+	methods:{
+		control: function(){
+			this.searchbar === '' ? this.labelControl = true : this.labelControl = false
+			this.$emit('searchThis', this.searchbar)
+		},
+		bckgrnSwapControl: function(){
+			this.bckgrnSwap = !this.bckgrnSwap
+		}
 	}
+})
+
+Vue.component('orders',{
+	template:`
+	<div class="orders-wrapper">
+		<div class="orders-list-wrapper">
+			<ul class="orders-info-list">
+				<li>
+					<h1>QNT</h1>
+				</li>
+				<li class="orders-info-actions">
+					<h1>Mod</h1>
+				</li>
+				<li>
+					<h1>Canc</h1>
+				</li>
+			</ul>
+		</div>
+		<order-item v-for="order in orders" :ordine="order"></order-item>
+		<div class="orders-list-wrapper">
+			<ul class="orders-info-list">
+				<li class="orders-info-total">
+					<h1>Totale</h1>
+				</li>
+				<li>
+					<h1>{{totaleView}}€</h1>
+				</li>
+			</ul>
+		</div>
+	</div>`,
+	data (){
+		return {
+			orders : []
+		}
+	},
+	created () {
+		this.getOrders()
+	},
+	methods:{
+		getOrders: function (){
+			var self = this
+			firebase.auth().onAuthStateChanged(user =>{
+				if (user){
+					db.collection('users').doc(user.uid).collection('orders').get()
+					.then(snap=>{
+						let data = []
+						snap.forEach(doc =>{
+							data.push(doc.data())
+						})
+						self.orders = data
+						
+					})
+				}	
+			})
+				
+		}
+	},
+	computed:{
+		totaleView (){
+			  this.orders.forEach(function(item){console.log(item)});
+			}
+		}
+})
+
+Vue.component('order-item',{
+	props : ['ordine'],
+	template:`
+	<div class="orders-list-wrapper" v-if="isOrdered">
+		<ul class="orders-info-list">
+			<li>
+				<h1>{{ ordine.quantity }}x</h1>
+			</li>
+			<li>
+				<h1>{{ ordine.product.titolo }}</h1>
+				<h2>{{ ordine.product.misura }}</h2>
+			</li>
+				
+			<li >
+				<h1 v-if="ordine.product.isDiscounted">{{ sum }}€</h1>
+				<h1 v-if="!ordine.product.isDiscounted">{{ sum }}€</h1>
+			</li>
+			<li>
+				<div class="order-edit" v-on:click="">
+					<span class="material-icons" style="width: 24px; height: 24px; margin: auto;">
+						edit
+					</span>
+				</div>
+			</li>
+			<li>
+				<div class="order-remove" v-on:click="removeOrder">
+					<span class="material-icons" style="width: 24px; height: 24px; margin: auto;">
+						delete
+					</span>
+				</div>
+			</li>
+		</ul>
+	</div>`,
+	data (){
+		return {
+			sum: 0,
+			isOrdered : true
+		}
+	},
+	created (){
+		this.getSum()
+	},
+	methods:{
+		getSum (){
+
+			if (this.ordine.product.isDiscounted){
+				this.ordine.product.prezzoScontato = this.ordine.product.prezzoScontato.replace(/,/g, '.')							
+				//siccome prezzo e prezzoScontato sono una stringa cambio tutte le , con in .
+				this.sum = Math.floor(parseFloat(this.ordine.product.prezzoScontato) * this.ordine.quantity * 100) / 100			
+				//trasformo la stringa in numero (parseFloat() prende solo i numeri che possono essere convertiti, quindi niente lettere) moltiplico per la quantità poi per 100 e poi tolgo i decimali, infine divido per cento
+				this.sum = this.sum.toFixed(2).toString().replace(/\./g, ',')
+				//la somma deve avere 2 decimali (toFixed() fa questo), la trasformo in stringa e trasformo ogni . in ,
+			}
+			else{
+				//come sopra ma al posto di "prezzoScontato" abbiamo "prezzo"
+				this.ordine.product.prezzo = this.ordine.product.prezzo.replace(/,/g, '.')	
+				this.sum = Math.floor(parseFloat(this.ordine.product.prezzo) * this.ordine.quantity * 100) / 100
+				this.sum = this.sum.toFixed(2).toString().replace(/\./g, ',')
+			}
+
+		},
+		removeOrder: function(){
+			this.isOrdered = !this.isOrdered;
+			var thisId = this.ordine.product.id
+			
+			firebase.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					db.collection('users').doc(user.uid).collection('orders').where('product.id', '==', thisId)
+					.get()
+					.then(snapshot =>{
+						snapshot.forEach((doc) => {
+							doc.ref.delete();
+						})
+					})
+				}
+			  });
+			}
+	}
+
 })
 
 //placeholder per VueRouter
 
 const home = { template: '<main-app></main-app>' }
-const ordini = { template: '<div>ordini</div>' }
+const ordini = { template: '<orders></orders>' }
 const preferiti = { template: '<preferiti></preferiti>' }
 const areaPersonale = { template: '<account-managment></account-managment>' }
 const supporto = { template: '<div>Supporto</div>' }
@@ -727,11 +949,11 @@ const supporto = { template: '<div>Supporto</div>' }
 //struttura array di oggetti
 
 const routes = [
-  { path: '/ordini', component: ordini },
+  { path: '/ordini', component: ordini},
   { path: '/preferiti', component: preferiti },
   { path: '/areaPersonale', component: areaPersonale },
   { path: '/supporto', component: supporto },
-  {path:'/', component: home}
+  {	path:'/', component: home}
 ]
 
 
@@ -740,8 +962,7 @@ const routes = [
 //Inizializzazione istanza VueRouter
 
 const router = new VueRouter({
-  routes					//importazione array di oggetti routes
-
+  routes									//importazione array di oggetti routes
 });
 
 
@@ -749,8 +970,6 @@ const router = new VueRouter({
 //inizializzazione istanza Vue
 
 const vue = new Vue({
-	el: '#app',				//id elemento connesso al foglio html
-  router					//importazione istanza VueRouter
+	el: '#app',								//id elemento connesso al foglio html
+  	router									//importazione istanza VueRouter
 });
-
-
