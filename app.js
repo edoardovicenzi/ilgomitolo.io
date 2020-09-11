@@ -292,7 +292,10 @@ Vue.component('preferiti',{
 })
 
 Vue.component('account-managment',{
-	template:``,
+	template:`<div>
+		
+	</div>
+	`,
 
 data: function(){
     return{
@@ -809,7 +812,7 @@ Vue.component('orders',{
 				</li>
 			</ul>
 		</div>
-		<order-item v-for="order in orders" :ordine="order"></order-item>
+		<order-item v-for="order in orders" :ordine="order" v-on:removeMe="updateOrders"></order-item>
 		<div class="orders-list-wrapper">
 			<ul class="orders-info-list">
 				<li class="orders-info-total">
@@ -823,7 +826,8 @@ Vue.component('orders',{
 	</div>`,
 	data (){
 		return {
-			orders : []
+			orders : [],
+			totalView : ''
 		}
 	},
 	created () {
@@ -846,13 +850,31 @@ Vue.component('orders',{
 				}	
 			})
 				
+		},
+		updateOrders (event) {
+			var self = this
+			for (let i=0; i < this.orders.length; i++){
+				if (self.orders[i].product.id == event){
+					self.orders.splice(i)
+				}
+			}
 		}
+		
 	},
 	computed:{
 		totaleView (){
-			  this.orders.forEach(function(item){console.log(item)});
-			}
+			let sum = 0
+			  this.orders.forEach(function(item){
+				if (item.product.isDiscounted){
+					sum +=	Math.floor(parseFloat(item.product.prezzoScontato.replace(/,/g, '.')) * item.quantity * 100)/ 100
+				}
+				else{
+					sum +=	Math.floor(parseFloat(item.product.prezzo.replace(/,/g, '.')) * item.quantity * 100)/ 100
+				}
+				});
+			return sum.toFixed(2).toString().replace(/\./g, ',')
 		}
+	}
 })
 
 Vue.component('order-item',{
@@ -917,6 +939,7 @@ Vue.component('order-item',{
 
 		},
 		removeOrder: function(){
+			var self = this
 			this.isOrdered = !this.isOrdered;
 			var thisId = this.ordine.product.id
 			
@@ -929,6 +952,7 @@ Vue.component('order-item',{
 							doc.ref.delete();
 						})
 					})
+					self.$emit('removeMe', thisId)
 				}
 			  });
 			}
