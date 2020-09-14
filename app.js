@@ -36,7 +36,7 @@ Vue.component('nav-bar',{
 		<div class="top-nav-bar primary">
 			<div class="left-float">
 				<ul>
-					<li><a href="#" @click="toggle"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></a></li>
+					<li style="cursor:pointer" @click="toggle"><i class="material-icons" style="position: relative;top: 3px;left: 5px">menu</i></li>
 					<li><router-link class="hidden" to="/" style="font-family: 'Indie Flower', cursive;font-size:25px">Il Gomitolo</router-link></li>
 				</ul>
 			</div>
@@ -44,7 +44,16 @@ Vue.component('nav-bar',{
 				<ul>
 					<li v-if="!isLogged"><a class="register-nav-bar hidden ripple" @click="registerControl">Registrati</a></li>
 				<li v-if="!isLogged"><a class="login-nav-bar hidden" @click="loginControl">Accedi</a></li>
-				<li v-if="isLogged"><a class="login-nav-bar hidden" @click="signOut">Signout</a></li>
+				<li v-if="isLogged"><a class="login-nav-bar" @click="signOut">Signout</a></li>
+				<li v-if="!isLogged"class="shown">
+					<span class="material-icons" style="color:white">
+						account_circle
+					</span>
+					<div class="dropdown-menu-account">
+						<h2 @click="loginControl">Accedi</h2>
+						<h2 @click="registerControl">Registrati</h2>
+					</div>
+				</li>
 				</ul>
 				
 			</div>
@@ -69,8 +78,7 @@ Vue.component('nav-bar',{
 					</div>
 					
 					<div style="margin: auto; float: right;"> 
-						<h1 class="sidebar-name">Ciao,</h1>
-						<h1 class="sidebar-name">{{ username }}</h1>
+						<h1 class="sidebar-name">Ciao!</h1>
 					</div>
 				</div>
 				
@@ -83,7 +91,8 @@ Vue.component('nav-bar',{
 					  <router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
 					  <router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
 					  <router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
-					  <router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>
+					  <router-link to="/scontati"><li @click="toggle"><div><i class="material-icons drawer-li">local_offer</i><h1>Sconti</h1></div></li></router-link>
+					  <!--<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>-->
 					  <router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
 				  </ul>
 			  </div>
@@ -95,8 +104,7 @@ Vue.component('nav-bar',{
 			sidebarStatus: false,
 			behindStatus: false,
 			loginStatus: false,
-			registerStatus: false,
-			username: ''
+			registerStatus: false
 		}
 	},
 	created: function (){
@@ -108,11 +116,12 @@ Vue.component('nav-bar',{
 			this.behindStatus = !this.behindStatus
 			},
 		preferiti: function(){
+			var self = this
 			this.sidebarStatus = !this.sidebarStatus
 			this.behindStatus = !this.behindStatus
 			firebase.auth().onAuthStateChanged(user =>{
 				if (!user){														// se esiste un user loggato
-					this.$router.go('home')
+					self.$router.go({name: home})
 			}
 			})
 			
@@ -136,9 +145,9 @@ Vue.component('nav-bar',{
 			this.loginStatus = !this.loginStatus
 		},
 		accountCheck: function(){
+			var self = this
 			firebase.auth().onAuthStateChanged(user =>{
 				if (user){
-					this.username = user.displayName
 					this.isLogged = true
 					this.clicker()
 				}
@@ -226,9 +235,7 @@ Vue.component('main-app', {
 				return product.titolo.toLowerCase().includes(this.searchItem.toLowerCase())
 		})
 		}
-	}
-			
-			
+	}		
 });
 
 Vue.component('preferiti',{
@@ -256,22 +263,19 @@ Vue.component('preferiti',{
 	methods:{
 		getPreferiti: function(){
 			var self = this;
-			this.preferitiList = []
 			firebase.auth().onAuthStateChanged(function(user) {
 				if (user) {
 					db.collection('users').doc(user.uid).collection('preferiti')
 					.get()
 					.then(snap => {
-						let items = []
 						if (snap.empty){
 							self.isEmpty = true
 						}
 						else{
 							self.isEmpty = false
 							snap.forEach(doc => {
-							items.push(doc.data())
+							self.preferitiList.push(doc.data())
 						})
-						self.preferitiList = items
 						}
 					})
 				}
@@ -291,9 +295,66 @@ Vue.component('preferiti',{
 
 })
 
+Vue.component('discounted',{
+	template:`
+	<div class="main-app-wrapper">
+		<search-bar v-on:searchThis="search"></search-bar>
+		<div v-if="isEmpty">
+			<div class="preferred-empty-title"><h1>Attualmente non ci sono Sconti!</h1></div>
+		</div>
+		<div class="products-card-container">
+			<card v-for="scontato in filteredList" :item="scontato"></card>
+		</div>
+	</div>`,
+	data: function (){
+		return{
+			discountedList : [],													//	array di oggetti
+			searchItem: '',
+			isEmpty: false
+		}
+	},
+	created (){
+		this.getScontati()
+	},
+	methods:{
+		getScontati (){
+			var self = this;
+			console.log('ok')
+				db.collection("products")
+				.where("isDiscounted", "==", true)
+				.get()
+				.then(snap => {
+					let items =[]
+					if (snap.empty){
+						console.log('ok')
+						self.isEmpty = true
+					}
+					else{
+						console.log('ok')
+						self.isEmpty = false
+						snap.forEach(doc => {
+						items.push(doc.data())
+					})
+					self.discountedList = items
+					}
+				})
+		},
+		search: function(event){
+			this.searchItem = event
+		}
+	},
+	computed:{
+		filteredList(){
+			return this.discountedList.filter(product =>{
+				return product.titolo.toLowerCase().includes(this.searchItem.toLowerCase())				
+			})
+		}
+	}
+})
+
 Vue.component('account-managment',{
 	template:`<div>
-		
+
 	</div>
 	`,
 
@@ -402,7 +463,8 @@ Vue.component('card',{
 						}
 					})
 				}	
-				});
+				})
+				
 			}				
 		}
 },
@@ -434,7 +496,7 @@ Vue.component('preferitiCard',{
 						<h4>{{counter}}</h4>
 						<a class="counter-add" @click="counterAdd"><i class="material-icons">add</i></a>
 					</div>
-					<div class="card-buy-button">
+					<div class="card-buy-button ripple" v-on:click="addToCart">
 						<a><h4>Aggiungi</h4></a>
 					</div>
 		</div>
@@ -494,7 +556,35 @@ Vue.component('preferitiCard',{
 					})
 				}
 			})
-	}
+		},
+		addToCart (){
+			var self = this
+			var thisId = this.item.id
+			if (this.counter != 0){
+				firebase.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					db.collection('users').doc(user.uid).collection('orders').where('product.id', '==', thisId).get()
+					.then(snap =>{
+						if (snap.empty){
+							db.collection('users').doc(user.uid).collection('orders').add({
+								quantity : self.counter,
+								product : self.item
+							})
+						}
+						else{
+							snap.forEach(doc=>{
+								count = self.counter + doc.data().quantity
+								db.collection('users').doc(user.uid).collection('orders').doc(doc.id).update({
+									quantity : count
+								})
+							})
+						}
+					})
+				}	
+				})
+				
+			}				
+		}
 },
 	props: ['item']
 });
@@ -571,7 +661,6 @@ Vue.component('register-card',{
 			this.$emit('toAccount')
 		},
 		registerAccount: function(){
-			var self = this
 			if (this.email != "" && this.password != "" && this.username != ""){
 				firebase.auth().createUserWithEmailAndPassword(this.email, this.password)                        
 				.catch(function(error) {
@@ -583,7 +672,6 @@ Vue.component('register-card',{
 			  });
 			firebase.auth().onAuthStateChanged(user =>{
 				if (user){
-					user.displayName = this.username
 					db.collection('users').doc(user.uid).set({
 						email: this.email,
 						username: this.username
@@ -960,24 +1048,70 @@ Vue.component('order-item',{
 
 })
 
+Vue.component('supporto',{
+	template:`
+	<div class="support-wrapper">
+	<ul>
+		<li>
+			<img src="https://image.flaticon.com/icons/svg/2934/2934394.svg">
+			<div>
+				<h2 class="hidden">Chiamaci ai nostri numeri sempre attivi, ti forniremo tutte le informazioni di cui hai bisogno. I nostri numeri sempre disponibili</h2>
+				<h2>Cellulare: 3456789629  Telefono: 0461 2345717</h2>
+			</div>
+			
+		</li>
+		<li>
+			<img src="https://image.flaticon.com/icons/svg/860/860809.svg">
+			<div>
+			<h2>Per ottenere informazioni, inviaci una email all'indirizzo</h2>
+			<h2>IlGomitolo.info@gmail.com</h2>
+			</div>
+		</li>
+		<li>
+			<img src="https://image.flaticon.com/icons/svg/711/711970.svg">
+			<div>
+			<h2>Chatta con noi per avere informazioni sui nostri prodotti o sul listino prezzi, contattaci dal tuo smartphone al numero</h2>
+			<h2>34567192629</h2>
+			</div>
+		</li>
+		<li>
+			<img src="https://image.flaticon.com/icons/svg/953/953810.svg">
+			<div>
+			<h2>Se il tuo ordine è superiore a 25 euro, la spedizione sarà gratuita; gli ordini arrivano mediamente in 2-5 giorni lavorativi.</h2>
+			</div>
+		</li>
+		<li>
+			<img src="https://image.flaticon.com/icons/svg/679/679720.svg">
+			<div>
+			<h2>Se non sei soddisfatto del tuo ordine puoi rimandarlo indietro, la procedura del reso la trovi sul nostro sito.</h2>
+			</div>
+		</li>
+	</ul>	
+	</div>`,
+
+})
+
+
 //placeholder per VueRouter
 
 const home = { template: '<main-app></main-app>' }
 const ordini = { template: '<orders></orders>' }
 const preferiti = { template: '<preferiti></preferiti>' }
 const areaPersonale = { template: '<account-managment></account-managment>' }
-const supporto = { template: '<div>Supporto</div>' }
+const supporto = { template: '<supporto></supporto>' }
+const prodScontati = { template: '<discounted></discounted>' }
 
 
 //dichiarazione routes per vue-router
 //struttura array di oggetti
 
 const routes = [
-  { path: '/ordini', component: ordini},
-  { path: '/preferiti', component: preferiti },
-  { path: '/areaPersonale', component: areaPersonale },
-  { path: '/supporto', component: supporto },
-  {	path:'/', component: home}
+	{ path: '/scontati', component: prodScontati},
+	{ path: '/ordini', component: ordini},
+	{ path: '/preferiti', component: preferiti },
+	{ path: '/areaPersonale', component: areaPersonale },
+	{ path: '/supporto', component: supporto },
+	{ path:'/', component: home, name: "home"}
 ]
 
 
