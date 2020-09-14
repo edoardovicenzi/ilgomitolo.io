@@ -106,7 +106,7 @@ ul {
 .sidebar-head-isLogged{
 	width: 100%;
 	height: 100%;
-	display: flex;
+	display: inline-flex;
 }
 
 .sidebar-name{
@@ -114,7 +114,6 @@ ul {
 	text-align: center;
 }
 .sidebar-image-container{
-	width: 50%;
 	height: 100%;
 }
 
@@ -214,9 +213,14 @@ ul {
 	width: 70px;
 	height: 70px;
 	border-radius: 70px;
-	margin: 22px auto;
+	padding: 22px;
 	display: block;
 }
+
+.sidebar-divider{
+	background-color: transparent !important;
+}
+
 
 .preferred-empty-image{
 	margin: auto;

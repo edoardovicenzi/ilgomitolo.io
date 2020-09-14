@@ -87,10 +87,13 @@ Vue.component('nav-bar',{
 		</div>
 			  <div class="sidebar-body-wrapper">
 				  <ul>
+					  <li class="sidebar-divider"><h2>Servizi</h2></li>
 					  <router-link to="/"><li @click="toggle"><i class="material-icons drawer-li">home</i><h1>Home</h1></li></router-link>
+					  <router-link to="/scontati"><li @click="toggle"><div><i class="material-icons drawer-li">local_offer</i><h1>Sconti</h1></div></li></router-link>
+					  <li class="sidebar-divider"><h2>Le mie liste</h2></li>
 					  <router-link to="/ordini"><li @click="toggle"><i class="material-icons drawer-li">list</i><h1>I miei ordini</h1></li></router-link>
 					  <router-link to="/preferiti"><li @click="preferiti"><div><i class="material-icons drawer-li">favorite</i><h1>I miei preferiti</h1></div></li></router-link>
-					  <router-link to="/scontati"><li @click="toggle"><div><i class="material-icons drawer-li">local_offer</i><h1>Sconti</h1></div></li></router-link>
+					  <li class="sidebar-divider"><h2>Amministrazione</h2></li>
 					  <!--<router-link to="/areaPersonale"><li @click="toggle"><div><i class="material-icons drawer-li">person</i><h1>Area personale</h1></div></li></router-link>-->
 					  <router-link to="/supporto"><li @click="toggle"><div><i class="material-icons drawer-li">help</i><h1>Supporto</h1></div></li></router-link>
 				  </ul>
