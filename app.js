@@ -662,6 +662,7 @@ Vue.component('register-card',{
 					<button class="login-button ripple" type="submit" v-on:click="registerAccount">
 						<h1>Registrati</h1>
 					</button>
+					<h2 v-if="error != '' " style="margin:10px auto; color:red;">{{error}}</h2>
 				</div>
 			</div>
 		</div>
@@ -673,7 +674,8 @@ Vue.component('register-card',{
 			password: "",
 			pswStatus : false,
 			userStatus : false,
-			emailStatus: false
+			emailStatus: false,
+			error : ''
 		}
 	},
 	methods:{
@@ -693,14 +695,23 @@ Vue.component('register-card',{
 			this.$emit('toAccount')
 		},
 		registerAccount: function(){
+			var self = this
 			if (this.email != "" && this.password != "" && this.username != ""){
 				firebase.auth().createUserWithEmailAndPassword(this.email, this.password)                        
 				.catch(function(error) {
-				// Handle Errors here.
-				var errorCode = error.code;
-				var errorMessage = error.message;
-				// ...
-				console.log(errorCode, errorMessage)
+					var errorCode = error.code;
+					var errorMessage = error.message;
+					console.log(errorCode)
+					switch (errorCode) {
+						case "auth/weak-password":
+							self.error = "La password deve avere almeno 6 caratteri!"
+							break;
+						case "auth/email-already-in-use":
+							self.error = "L'email è già esistente!"
+							break;
+						default:
+							self.error = '';
+					}
 			  });
 			firebase.auth().onAuthStateChanged(user =>{
 				if (user){
@@ -751,6 +762,7 @@ Vue.component('login-card',{
                     <button class="login-button ripple" type="submit" v-on:click="loginAccount">
                         <h1>Login</h1>
 					</button>
+					<h2 v-if="error != ''" style="margin:10px auto; color:red;">{{error}}</h2>
 				</div>
             </div>
 		</div>
@@ -760,7 +772,8 @@ Vue.component('login-card',{
 			  email: "",
 			  password: "",
 			  pswStatus : false,
-			  userStatus : false
+			  userStatus : false,
+			  error : ''
 		  }
 	  },
 	  methods:{
@@ -777,13 +790,24 @@ Vue.component('login-card',{
 			this.$emit('toRegister')
 		},
 		loginAccount: function(){
+			var self = this
 			if (this.email != "" && this.password != ""){
 				firebase.auth().signInWithEmailAndPassword(this.email, this.password)
 				.catch(function(error) {
 					// Handle Errors here.
 					var errorCode = error.code;
 					var errorMessage = error.message;
-					console.log('email o password errate')
+					console.log(errorCode)
+					switch (errorCode) {
+						case "auth/wrong-password":
+							self.error = "Password errata!"
+							break;
+						case "auth/user-not-found":
+							self.error = "Utente non trovato!"
+						default:
+							self.error = '';
+					}
+					
 					// ...
 				  });
 				this.$emit('isLogged')          
