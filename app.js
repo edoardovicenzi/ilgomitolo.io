@@ -63,8 +63,7 @@ Vue.component('nav-bar',{
 	<login-card v-if="loginStatus" v-on:closeThis="loginControl" v-on:toRegister="swapAccountRegister" v-on:isLogged="accountCheck"></login-card>
 	<register-card v-if="registerStatus" v-on:closeMe="registerControl" v-on:toAccount="swapAccountRegister" v-on:isRegistered="accountCheck"></register-card>
 
-	<div id="shadow-for-overlays" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']">
-	<div id="clicker" v-if="behindStatus" @click="clicker"></div>
+	<div id="shadow-for-overlays" v-bind:class="[behindStatus ? 'fade-in' : 'fade-out']" @click="clicker">
 	</div>
 	
 	
@@ -78,7 +77,7 @@ Vue.component('nav-bar',{
 					</div>
 					
 					<div style="margin: auto; float: right;"> 
-						<h1 class="sidebar-name">Ciao!</h1>
+						<h1 class="sidebar-name">Bentornato</h1>
 					</div>
 				</div>
 				
@@ -247,7 +246,7 @@ Vue.component('preferiti',{
 			<div class="preferred-empty-title"><h1>La tua lista è vuota! Prova ad aggiungere qualche prodotto...</h1></div>
 		</div>
 		<div class="products-card-container">
-			<preferitiCard v-for="preferiti in filteredList" :item="preferiti"></preferitiCard>
+			<preferitiCard v-for="preferiti in filteredList" :item="preferiti" v-on:checkPreferiti="checkIfEmpty"></preferitiCard>
 		</div>
 	</div>`,
 	data: function (){
@@ -283,6 +282,20 @@ Vue.component('preferiti',{
 		},
 		search: function(event){
 			this.searchItem = event
+		},
+		checkIfEmpty(event){
+			var self = this
+			for (let i=0; i < this.preferitiList.length; i++){
+				if (self.preferitiList[i].id == event){
+					self.preferitiList.splice(i,1)
+				}
+			}
+			if (this.preferitiList.length == 0){
+				this.isEmpty = true
+			}
+			else{
+				this.isEmpty = false
+			}
 		}
 	},
 	computed:{
@@ -337,6 +350,24 @@ Vue.component('discounted',{
 					})
 					self.discountedList = items
 					}
+					firebase.auth().onAuthStateChanged(user =>{
+						if (user){
+							db.collection('users').doc(user.uid).collection('preferiti').get()
+							.then(snap => {
+								snap.forEach(doc => {
+									let data = []
+									data.push(doc.data())
+									for (let i=0; i < data.length; i++){
+										for (let j=0; j < self.discountedList.length; j++) {
+											if (data[i].id == self.discountedList[j].id){
+												self.discountedList[j].isPreferred = true
+											}
+										}
+									}
+								})
+							})
+						}
+					})
 				})
 		},
 		search: function(event){
@@ -505,8 +536,7 @@ Vue.component('preferitiCard',{
 	data: function (){
 		return {
 			 counter: 0,
-			 isPreferred: Boolean,
-			 userPreferiti: []
+			 isPreferred: Boolean
 		 }
 	},
 	created: function (){
@@ -535,10 +565,9 @@ Vue.component('preferitiCard',{
 							doc.ref.delete();
 						})
 					})
-				} else {
-					alert("non hai effettuato il login!")
 				}
-			  });
+			  })
+			  this.$emit('checkPreferiti', this.item.id)
 			},
 		getStatus: function(){
 			var self = this;
@@ -900,7 +929,7 @@ Vue.component('orders',{
 				</li>
 			</ul>
 		</div>
-		<order-item v-for="order in orders" :ordine="order" v-on:removeMe="updateOrders"></order-item>
+		<order-item v-for="order in orders" :ordine="order" v-on:removeMe="updateOrders" :key="order.product.id"></order-item>
 		<div class="orders-list-wrapper">
 			<ul class="orders-info-list">
 				<li class="orders-info-total">
@@ -914,8 +943,7 @@ Vue.component('orders',{
 	</div>`,
 	data (){
 		return {
-			orders : [],
-			totalView : ''
+			orders : []
 		}
 	},
 	created () {
@@ -940,10 +968,9 @@ Vue.component('orders',{
 				
 		},
 		updateOrders (event) {
-			var self = this
 			for (let i=0; i < this.orders.length; i++){
-				if (self.orders[i].product.id == event){
-					self.orders.splice(i)
+				if (this.orders[i].product.id == event){
+					this.orders.splice(i,1)
 				}
 			}
 		}
@@ -952,12 +979,12 @@ Vue.component('orders',{
 	computed:{
 		totaleView (){
 			let sum = 0
-			  this.orders.forEach(function(item){
+			this.orders.forEach(function(item){
 				if (item.product.isDiscounted){
-					sum +=	Math.floor(parseFloat(item.product.prezzoScontato.replace(/,/g, '.')) * item.quantity * 100)/ 100
+					sum = sum +	Math.floor(parseFloat(item.product.prezzoScontato.replace(/,/g, '.')) * item.quantity * 100)/ 100
 				}
 				else{
-					sum +=	Math.floor(parseFloat(item.product.prezzo.replace(/,/g, '.')) * item.quantity * 100)/ 100
+					sum = sum + Math.floor(parseFloat(item.product.prezzo.replace(/,/g, '.')) * item.quantity * 100)/ 100
 				}
 				});
 			return sum.toFixed(2).toString().replace(/\./g, ',')
