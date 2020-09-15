@@ -44,7 +44,7 @@ Vue.component('nav-bar',{
 				<ul>
 					<li v-if="!isLogged"><a class="register-nav-bar hidden ripple" @click="registerControl">Registrati</a></li>
 				<li v-if="!isLogged"><a class="login-nav-bar hidden" @click="loginControl">Accedi</a></li>
-				<li v-if="isLogged"><a class="login-nav-bar" @click="signOut">Signout</a></li>
+				<li v-if="isLogged"><a class="login-nav-bar" @click="signOut">Sign Out</a></li>
 				<li v-if="!isLogged"class="shown">
 					<span class="material-icons" style="color:white">
 						account_circle
@@ -249,7 +249,7 @@ Vue.component('preferiti',{
 			<div class="preferred-empty-title"><h1>La tua lista è vuota! Prova ad aggiungere qualche prodotto...</h1></div>
 		</div>
 		<div class="products-card-container">
-			<preferitiCard v-for="preferiti in filteredList" :item="preferiti" v-on:checkPreferiti="checkIfEmpty"></preferitiCard>
+			<preferitiCard v-for="preferiti in filteredList" :item="preferiti" v-on:checkPreferiti="checkIfEmpty" :key="preferiti.id"></preferitiCard>
 		</div>
 	</div>`,
 	data: function (){
@@ -287,10 +287,9 @@ Vue.component('preferiti',{
 			this.searchItem = event
 		},
 		checkIfEmpty(event){
-			var self = this
 			for (let i=0; i < this.preferitiList.length; i++){
-				if (self.preferitiList[i].id == event){
-					self.preferitiList.splice(i,1)
+				if (this.preferitiList[i].id == event){
+					this.preferitiList.splice(i,1)
 				}
 			}
 			if (this.preferitiList.length == 0){
