@@ -123,7 +123,7 @@ Vue.component('nav-bar',{
 			this.behindStatus = !this.behindStatus
 			firebase.auth().onAuthStateChanged(user =>{
 				if (!user){														// se esiste un user loggato
-					self.$router.go({name: home})
+					self.$router.go('home')
 			}
 			})
 			
@@ -334,18 +334,15 @@ Vue.component('discounted',{
 	methods:{
 		getScontati (){
 			var self = this;
-			console.log('ok')
 				db.collection("products")
 				.where("isDiscounted", "==", true)
 				.get()
 				.then(snap => {
 					let items =[]
 					if (snap.empty){
-						console.log('ok')
 						self.isEmpty = true
 					}
 					else{
-						console.log('ok')
 						self.isEmpty = false
 						snap.forEach(doc => {
 						items.push(doc.data())
@@ -439,7 +436,7 @@ Vue.component('card',{
 	methods: {
 
 		counterAdd: function (){
-		return this.counter++;
+			return this.counter++;
 	},
 		counterRemove: function (){
 		if (this.counter > 0){
@@ -700,7 +697,6 @@ Vue.component('register-card',{
 				.catch(function(error) {
 					var errorCode = error.code;
 					var errorMessage = error.message;
-					console.log(errorCode)
 					switch (errorCode) {
 						case "auth/weak-password":
 							self.error = "La password deve avere almeno 6 caratteri!"
@@ -796,7 +792,6 @@ Vue.component('login-card',{
 					// Handle Errors here.
 					var errorCode = error.code;
 					var errorMessage = error.message;
-					console.log(errorCode)
 					switch (errorCode) {
 						case "auth/wrong-password":
 							self.error = "Password errata!"

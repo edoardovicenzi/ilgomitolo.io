@@ -707,7 +707,7 @@ margin: 0 25px 40px;
 		display: flex;
 		margin: 50px;
 	}
-	.support-wrapper > ul > li >div {
+	.support-wrapper > ul > li > div {
 		margin: auto 20px;
 	}
 	.support-wrapper > ul > li > img {
